@@ -1,22 +1,18 @@
 import { Request, Response } from 'express';
+const accountService = require('../services/accountService')
 
 export const login = async (req: Request, res: Response) => {
     try {
-        res.json({
-            test: 'login',
-            ans: req.body
-        })
-    } catch {
-        console.log('error')
+        //
+    } catch (e) {
+        console.log(e)
     }
 };
 
 export const register = async (req: Request, res: Response) => {
     try {
-        res.json({
-            test: 'register'
-        })
-    } catch {
-        console.log('error')
+        //
+    } catch (e) {
+        console.log(e)
     }
 };
