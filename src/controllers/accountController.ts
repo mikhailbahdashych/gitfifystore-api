@@ -3,7 +3,8 @@ import { Request, Response } from 'express';
 export const login = async (req: Request, res: Response) => {
     try {
         res.json({
-            test: 'asad'
+            test: 'login',
+            ans: req.body
         })
     } catch {
         console.log('error')
@@ -12,7 +13,9 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
     try {
-        console.log('works register')
+        res.json({
+            test: 'register'
+        })
     } catch {
         console.log('error')
     }
