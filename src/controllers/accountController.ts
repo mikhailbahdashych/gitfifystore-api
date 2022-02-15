@@ -8,17 +8,13 @@ export const register = async (req: Request, res: Response) => {
     let { email, password } = req.body
     const user = await accountService.getUserByEmail(email)
 
-    password = cryptoService.encrypt(password, process.env.CRYPTO_KEY)
     if (!user) {
-      await accountService.createUser({
-        email, password
-      })
-      res.status(200).json({
-        status: 1
-      })
+      password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT)
+      await accountService.createUser({ email, password })
+      res.status(200).json({ status: 1 })
     }
   } catch (e) {
-    console.log(e)
+    res.status(500).json({ message: 'Something went wrong' })
   }
 };
 

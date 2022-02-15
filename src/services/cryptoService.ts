@@ -13,4 +13,8 @@ module.exports = {
     result += decipher.final("utf8");
     return result;
   },
+  hashPassword: (password: string, key: string) => {
+    const sha256Hasher = crypto.createHmac("sha256", key);
+    return sha256Hasher.update(password).digest("hex");
+  }
 }
