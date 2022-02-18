@@ -49,3 +49,13 @@ export const resetPassword = async (req: Request, res: Response) => {
     console.log(e)
   }
 }
+
+export const verifyToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body
+    const result = await jwtService.getUser(token)
+    res.json(result)
+  } catch (e) {
+    console.log(e)
+  }
+}
