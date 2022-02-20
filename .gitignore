@@ -2,6 +2,6 @@
 .DS_Store
 node_modules/
 .env
-jwt
+keys
 test.js
 logs/

@@ -29,13 +29,13 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    let { email, password } = req.body
+    let { email, phone, password } = req.body
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT)
     const result = await accountService.getUserToLogin(email, password)
 
     if (result) {
-      const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY)
+      const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
       const token = await jwtService.sign({
         uxd: userId,
       });
