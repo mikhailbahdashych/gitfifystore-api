@@ -1,6 +1,7 @@
 const router = require('express').Router();
 
 const asyncMiddleware = require('./middlewares/async')
+const auth = require('./middlewares/jwt')
 const accountController = require('./controllers/accountController')
 
 router.post('/login', asyncMiddleware(accountController.login))
