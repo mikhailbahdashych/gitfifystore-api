@@ -43,7 +43,7 @@ export const login = async (req: Request, res: Response) => {
       res.status(200).json(token)
     } else {
       logger.info(`Wrong login data for user with email: ${email}`)
-      res.status(500).json({ message: 'Something went wrong' })
+      res.status(500).json({ message: 'User already exists' })
     }
 
   } catch (e) {
@@ -70,7 +70,11 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
 export const verifyToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
+    const result = await jwtService.getUser(token)
+    res.status(200).json(result)
   } catch (e) {
-    res.status(500).json({ message: 'Something went wrong' })
+    res.json({
+      error: 'Corrupted token'
+    })
   }
 }
