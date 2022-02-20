@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
+import loggerConfig from '../common/logger'
+
 const accountService = require('../services/accountService')
 const jwtService = require('../services/jwtService')
 const cryptoService = require('../services/cryptoService')
-const logger = require('../services/logger')
+const logger = loggerConfig({ label: 'balances-controller', path: 'balances' })
 
 export const register = async (req: Request, res: Response) => {
   try {
