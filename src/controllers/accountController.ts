@@ -66,3 +66,11 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Something went wrong' })
   }
 }
+
+export const verifyToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body
+  } catch (e) {
+    res.status(500).json({ message: 'Something went wrong' })
+  }
+}
