@@ -57,16 +57,6 @@ export const resetPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const verifyToken = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.body
-    const result = await jwtService.getUser(token)
-    res.json(result)
-  } catch (e) {
-    res.status(500).json({ message: 'Something went wrong' })
-  }
-};
-
 export const sendVerificationCode = async (req: Request, res: Response) => {
   try {
     //
