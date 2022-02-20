@@ -9,6 +9,7 @@ const logger = pino({
     options: {
       translateTime: "SYS:dd-mm-yyyy HH:MM:ss",
       ignore: "pid,hostname",
+      destination: './logs/logs.txt'
     }
   }
 })
