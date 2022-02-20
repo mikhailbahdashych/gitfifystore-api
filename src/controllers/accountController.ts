@@ -2,17 +2,7 @@ import { Request, Response } from 'express';
 const accountService = require('../services/accountService')
 const jwtService = require('../services/jwtService')
 const cryptoService = require('../services/cryptoService')
-import pino from "pino";
-const logger = pino({
-  transport: {
-    target: "pino-pretty",
-    options: {
-      translateTime: "SYS:dd-mm-yyyy HH:MM:ss",
-      ignore: "pid,hostname",
-      destination: './logs/logs.txt'
-    }
-  }
-})
+const logger = require('../services/logger')
 
 export const register = async (req: Request, res: Response) => {
   try {
