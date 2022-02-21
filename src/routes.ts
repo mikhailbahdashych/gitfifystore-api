@@ -9,5 +9,6 @@ router.post('/register', asyncMiddleware(accountController.register))
 router.post('/reset-password', asyncMiddleware(accountController.resetPassword))
 router.post('/verification-code', asyncMiddleware(accountController.sendVerificationCode))
 router.post('/verify-token', asyncMiddleware(accountController.verifyToken))
+router.post('/set-2fa', asyncMiddleware(accountController.set2fa))
 
 export default router;
