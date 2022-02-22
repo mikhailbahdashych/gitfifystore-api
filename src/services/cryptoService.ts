@@ -2,16 +2,15 @@ import * as crypto from "crypto";
 
 module.exports = {
   encrypt: (text: string, key: string, iv: string) => {
-    const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    let result = cipher.update(text, "utf8", "hex");
-    result += cipher.final("hex");
-    return result;
+    let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+    let encrypted = cipher.update(text, 'utf8', 'base64');
+    encrypted += cipher.final('base64');
+    return encrypted;
   },
   decrypt: (text: string, key: string, iv: string) => {
-    const decipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-    let result = decipher.update(text, "hex", "utf8");
-    result += decipher.final("utf8");
-    return result;
+    let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+    let decrypted = decipher.update(text, 'base64', 'utf8');
+    return (decrypted + decipher.final('utf8'));
   },
   hashPassword: (password: string, key: string) => {
     const sha256Hasher = crypto.createHmac("sha256", key);

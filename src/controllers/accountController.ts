@@ -42,6 +42,8 @@ export const login = async (req: Request, res: Response) => {
       const token = await jwtService.sign({
         uxd: userId,
       });
+      const userId2 = cryptoService.decrypt(userId, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
+      console.log('userId2', userId2)
       res.status(200).json(token)
     } else {
       logger.info(`Wrong login data for user with email: ${email}`)
@@ -86,7 +88,8 @@ export const set2fa = async (req: Request, res: Response) => {
     const { jwt, code, token } = req.body
     console.log(req.body)
     const user = await jwtService.getUser(jwt)
-    const userId = cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
+    console.log('user', user)
+    const userId = cryptoService.decrypt(user, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
     console.log('userId', userId)
     const result2F = twoFactorService.verifyToken(token, code);
 
