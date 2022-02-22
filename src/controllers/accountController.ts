@@ -8,6 +8,11 @@ const jwtService = require('../services/jwtService')
 const cryptoService = require('../services/cryptoService')
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
+const getUserByJwtToken = async (jwt: string) => {
+  const user = await jwtService.getUser(jwt)
+  return cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
+}
+
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
@@ -69,8 +74,7 @@ export const verifyToken = async (req: Request, res: Response) => {
 export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
-    const user = await jwtService.getUser(jwt)
-    const userId = cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
+    const userId = await getUserByJwtToken(jwt)
     const result2F = twoFactorService.verifyToken(token.secret, code);
     logger.info(`Setting 2FA for user with id: ${userId}`)
 
