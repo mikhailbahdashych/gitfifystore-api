@@ -16,9 +16,9 @@ module.exports = {
     return knex('users')
       .insert(data)
   },
-  async set2fa(data: { token: string, clientId: string }) {
+  async set2fa(data: { secret: string, clientId: string }) {
     return knex('users')
-      .update({two2fa: data.token})
+      .update({two2fa: data.secret})
       .where('id', data.clientId)
   }
 }
