@@ -3,16 +3,19 @@ import loggerConfig from '../common/logger'
 
 const twoFactorService = require('node-2fa')
 
-const accountService = require('../services/accountService')
-const jwtService = require('../services/jwtService')
-const cryptoService = require('../services/cryptoService')
-const logger = loggerConfig({ label: 'account-controller', path: 'account' })
+import * as accountService from '../services/accountService'
+import * as jwtService from '../services/jwtService';
+import * as cryptoService from '../services/cryptoService';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 import { CommonResponse } from "../responses/response";
 
+const logger = loggerConfig({ label: 'account-controller', path: 'account' })
+
 const getUserByJwtToken = async (jwt: string) => {
   const user = await jwtService.getUser(jwt)
-  return cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
+  return cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
 }
 
 export const register = async (req: Request, res: Response) => {
@@ -22,7 +25,7 @@ export const register = async (req: Request, res: Response) => {
     logger.info(`Registration user with email: ${email}`)
 
     if (!user) {
-      password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT)
+      password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
       await accountService.createUser({ email, password })
       logger.info(`User with email ${email} was created`)
       res.status(200).json({ status: 1 })
@@ -41,13 +44,13 @@ export const login = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
 
-    password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT)
+    password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const result = await accountService.getUserToLogin(email, password)
     logger.info(`Login user with email: ${email}`)
 
     if (result) {
-      const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY, process.env.CRYPTO_IV)
-      const token = await jwtService.sign({
+      const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+      const token = jwtService.sign({
         uxd: userId,
       });
       res.status(200).json(token)

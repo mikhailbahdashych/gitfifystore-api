@@ -1,4 +1,3 @@
-// @ts-ignore
 import jwt from "jsonwebtoken";
 import fs from 'fs';
 import path from 'path';
@@ -15,7 +14,7 @@ export = {
         payload,
         {
           key: privateKey,
-          passphrase: process.env.JWT_PASSPHRASE
+          passphrase: process.env.JWT_PASSPHRASE.toString()
         },
         {
           algorithm: "RS256",
