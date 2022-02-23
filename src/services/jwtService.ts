@@ -32,8 +32,6 @@ export const getUser = async (token: string) => {
       token,
       publicKey
     ) as JwtPayload
-    // @ts-ignore
-    // return await this.getUserPromise(token)
   } catch (e) {
     //
   }
