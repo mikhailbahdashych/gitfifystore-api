@@ -1,36 +1,48 @@
-const jwt = require("jsonwebtoken");
-const fs = require("fs");
-const path = require("path");
+// @ts-ignore
+import jwt from "jsonwebtoken";
+import fs from 'fs';
+import path from 'path';
 
-const pathToKeys = path.resolve(__dirname, "../../keys");
+import { JwtPayload } from "../interfaces/jwt";
 
-module.exports = {
-  sign(payload: object) {
-    const cert = fs.readFileSync(`${pathToKeys}/private.pem`);
-    return jwt.sign(
-      payload,
-      {
-        key: cert,
-        passphrase: process.env.JWT_PASSPHRASE
-      },
-      {
-        algorithm: "RS256",
-        expiresIn: "30m"
-      }
-    )
-  },
-  getUserPromise(token: string) {
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, fs.readFileSync(`${pathToKeys}/public.pem`), (err: any, decoded: any) => {
-        if(!err) {
-          return resolve(decoded);
-        } else {
-          return reject(err);
+const privateKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/private.pem"));
+const publicKey = fs.readFileSync(path.resolve(__dirname + "../../../keys/public.pem"));
+
+export = {
+  sign: (payload: JwtPayload) => {
+    try {
+      return jwt.sign(
+        payload,
+        {
+          key: privateKey,
+          passphrase: process.env.JWT_PASSPHRASE
+        },
+        {
+          algorithm: "RS256",
+          expiresIn: "30m"
         }
-      })
-    })
+      )
+    } catch (e) {
+      //
+    }
   },
-  async getUser (token: string) {
+  getUserPromise: (token: string) => {
+    try {
+      return new Promise(((resolve, reject) => {
+        jwt.verify(token, publicKey, (err: any, decoded: any) => {
+          if (!err) {
+            return resolve(decoded);
+          } else {
+            return reject(err);
+          }
+        })
+      }))
+    } catch (e) {
+      //
+    }
+  },
+  getUser: async (token: string) => {
+    // @ts-ignore
     return await this.getUserPromise(token)
   }
 }
