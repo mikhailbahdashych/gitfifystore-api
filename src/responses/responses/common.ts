@@ -1,14 +1,13 @@
-import { ResponsePayload } from "../../interfaces/objects/ResponsePayload";
+import { ResponsePayload } from '../../interfaces/objects/ResponsePayload';
 
-export class CommonResponse {
-
+export class CommonResponses {
   public unauthorized(data: ResponsePayload) {
-    const { res } = data
+    const { res } = data;
 
     return res.status(401).json({
       status: 401,
       message: 'unauthorized'
-    })
+    });
   }
 
   public somethingWentWrong(data: ResponsePayload) {
@@ -17,7 +16,7 @@ export class CommonResponse {
     return res.status(500).json({
       status: 500,
       message: 'something-went-wrong'
-    })
+    });
   }
 
   public accessForbidden(data: ResponsePayload) {
@@ -26,6 +25,6 @@ export class CommonResponse {
     return res.status(403).json({
       status: 403,
       message: 'access-forbidden'
-    })
+    });
   }
 }
