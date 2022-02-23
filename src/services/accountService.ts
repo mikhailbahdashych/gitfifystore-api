@@ -1,24 +1,25 @@
-const knex = require('../knex/knex')
+const knex = require('../knex/knex.js')
 
-module.exports = {
-  async getUserToLogin(email: string, password: string) {
-    return knex('users')
-      .first()
-      .where('email', email)
-      .andWhere('password', password)
-  },
-  async getUserByEmail(email: string) {
-    return knex('users')
-      .first()
-      .where('email', email)
-  },
-  async createUser(data: object) {
-    return knex('users')
-      .insert(data)
-  },
-  async set2fa(data: { secret: string, clientId: string }) {
-    return knex('users')
-      .update({two2fa: data.secret})
-      .where('id', data.clientId)
-  }
+export const getUserToLogin  = async (email: string, password: string) => {
+  return knex('users')
+    .first()
+    .where('email', email)
+    .andWhere('password', password)
+}
+
+export const getUserByEmail = async (email: string) => {
+  return knex('users')
+    .first()
+    .where('email', email)
+}
+
+export const createUser = async (data: object) => {
+  return knex('users')
+    .insert(data)
+}
+
+export const set2fa = async (data: { secret: string, clientId: string }) => {
+  return knex('users')
+    .update({two2fa: data.secret})
+    .where('id', data.clientId)
 }
