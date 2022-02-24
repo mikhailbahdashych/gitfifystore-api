@@ -10,6 +10,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 import { CommonResponse } from "../responses/response";
+import {get2fa} from "../services/accountService";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
@@ -94,6 +95,9 @@ export const set2fa = async (req: Request, res: Response) => {
 export const verify2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code } = req.body
+    const userId = await getUserByJwtToken(jwt)
+    const two2fa = await accountService.get2fa(userId)
+    if (two2fa) {}
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
   }

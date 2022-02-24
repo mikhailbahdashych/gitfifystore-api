@@ -23,3 +23,9 @@ export const set2fa = async (data: { secret: string, clientId: string }) => {
     .update({two2fa: data.secret})
     .where('id', data.clientId)
 }
+
+export const get2fa = async (id: string) => {
+  return knex('users')
+    .first('two2fa')
+    .where('id', id)
+}
