@@ -1,9 +1,11 @@
-const app = require('express')();
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const http = require('http');
+import express from 'express';
+import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+import * as http from 'http';
 
 import routes from './routes';
+
+const app = express();
 
 const httpServer = http.createServer(app);
 
