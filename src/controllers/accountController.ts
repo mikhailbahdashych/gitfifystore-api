@@ -69,7 +69,11 @@ export const verifyToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
     const result = await jwtService.getUser(token)
-    res.status(200).json(result)
+    if (!result) {
+      res.status(200).json({error: true})
+    } else {
+      res.status(200).json(result)
+    }
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
   }
