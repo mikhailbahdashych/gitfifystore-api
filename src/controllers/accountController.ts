@@ -91,6 +91,14 @@ export const set2fa = async (req: Request, res: Response) => {
   }
 }
 
+export const verify2fa = async (req: Request, res: Response) => {
+  try {
+    const { jwt, code } = req.body
+  } catch (e) {
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
+
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     //
