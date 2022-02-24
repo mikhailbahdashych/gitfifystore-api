@@ -89,6 +89,7 @@ export const set2fa = async (req: Request, res: Response) => {
     if (result2F.delta === 0) {
       await accountService.set2fa({secret: token.secret, clientId: userId})
       logger.info(`2FA was successfully created for user with id: ${userId}`)
+      res.status(200).json({status: 1})
     }
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
@@ -97,10 +98,14 @@ export const set2fa = async (req: Request, res: Response) => {
 
 export const verify2fa = async (req: Request, res: Response) => {
   try {
-    const { jwt, code } = req.body
-    const userId = await getUserByJwtToken(jwt)
+    const { token } = req.body
+    const userId = await getUserByJwtToken(token)
     const two2fa = await accountService.get2fa(userId)
-    if (two2fa) {}
+    if (two2fa) {
+      res.status(200).json({ status: 1 })
+    } else {
+      res.status(200).json({ status: -1 })
+    }
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
   }
