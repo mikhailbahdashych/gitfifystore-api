@@ -78,6 +78,7 @@ export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
     const userId = await getUserByJwtToken(jwt)
+
     const result2F = twoFactorService.verifyToken(token.secret, code);
     logger.info(`Setting 2FA for user with id: ${userId}`)
 
