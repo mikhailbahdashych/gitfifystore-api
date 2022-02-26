@@ -51,3 +51,11 @@ export const changePassword = async (id: string, newPassword: string) => {
     })
     .where('id', id)
 }
+
+export const changeEmail = async (id: string, newEmail: string) => {
+  return knex('users')
+    .update({
+      email: newEmail
+    })
+    .where('id', id)
+}

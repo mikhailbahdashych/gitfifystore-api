@@ -128,6 +128,22 @@ export const changePassword = async (req: Request, res: Response) => {
   }
 }
 
+export const changeEmail = async (req: Request, res: Response) => {
+  try {
+    const { currentEmail, newEmail, newEmailRepeat, token } = req.body
+    if (newEmail === newEmailRepeat) {
+      const user = await getUserByJwtToken(token)
+      const checkIfEmailUsed = await accountService.getUserByEmail(newEmail)
+      if (!checkIfEmailUsed && user.email === currentEmail) {
+        await accountService.changeEmail(user.id, newEmail)
+        res.status(200).json({ status: 1 })
+      }
+    }
+  } catch (e) {
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
+
 export const closeAccount = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
@@ -138,14 +154,6 @@ export const closeAccount = async (req: Request, res: Response) => {
     } else {
       res.status(200).json({ status: -1 })
     }
-  } catch (e) {
-    return CommonResponse.common.somethingWentWrong({ res })
-  }
-}
-
-export const changeEmail = async (req: Request, res: Response) => {
-  try {
-    //
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
   }
