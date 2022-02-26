@@ -43,3 +43,7 @@ export const closeAccount = async (user: { id: string, email: string }) => {
     })
     .where('id', user.id)
 }
+
+export const changePassword = async () => {
+
+}

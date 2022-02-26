@@ -14,8 +14,9 @@ import { CommonResponse } from "../responses/response";
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
 const getUserByJwtToken = async (jwt: string) => {
-  const user = await jwtService.getUser(jwt)
-  return cryptoService.decrypt(user.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+  const userJwt = await jwtService.getUser(jwt)
+  const userId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+  return await accountService.getUserById(userId)
 }
 
 export const register = async (req: Request, res: Response) => {
@@ -81,14 +82,14 @@ export const verifyToken = async (req: Request, res: Response) => {
 export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
-    const userId = await getUserByJwtToken(jwt)
+    const user = await getUserByJwtToken(jwt)
 
     const result2F = twoFactorService.verifyToken(token.secret, code);
-    logger.info(`Setting 2FA for user with id: ${userId}`)
+    logger.info(`Setting 2FA for user with id: ${user.id}`)
 
     if (result2F.delta === 0) {
-      await accountService.set2fa({secret: token.secret, clientId: userId})
-      logger.info(`2FA was successfully created for user with id: ${userId}`)
+      await accountService.set2fa({secret: token.secret, clientId: user.id})
+      logger.info(`2FA was successfully created for user with id: ${user.id}`)
       res.status(200).json({status: 1})
     }
   } catch (e) {
@@ -99,8 +100,8 @@ export const set2fa = async (req: Request, res: Response) => {
 export const verify2fa = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-    const userId = await getUserByJwtToken(token)
-    const two2fa = await accountService.get2fa(userId)
+    const user = await getUserByJwtToken(token)
+    const two2fa = await accountService.get2fa(user.id)
     if (two2fa) {
       res.status(200).json({ status: 1 })
     } else {
@@ -129,7 +130,13 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
   try {
-    //
+    const { currentPassword, newPassword, newPasswordRepeat, token } = req.body
+    if (newPassword === newPasswordRepeat) {
+      const user = await getUserByJwtToken(token)
+      if (user.password === cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) {
+        await accountService.changePassword()
+      }
+    }
   } catch (e) {
     return CommonResponse.common.somethingWentWrong({ res })
   }
@@ -138,9 +145,8 @@ export const changePassword = async (req: Request, res: Response) => {
 export const closeAccount = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-    const userId = await getUserByJwtToken(token)
-    const user = await accountService.getUserById(userId)
-    if (userId) {
+    const user = await getUserByJwtToken(token)
+    if (user) {
       await accountService.closeAccount(user)
       res.status(200).json({ status: 1 })
     } else {
