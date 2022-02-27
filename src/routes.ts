@@ -7,6 +7,8 @@ const emailController = require('./controllers/emailController')
 
 router.post('/login', accountController.login)
 router.post('/register', accountController.register)
+router.post('/confirm-registration', accountController.confirmRegistration)
+
 router.post('/reset-password', accountController.resetPassword)
 router.post('/verification-code', accountController.sendVerificationCode)
 router.post('/verify-token', accountController.verifyToken)
