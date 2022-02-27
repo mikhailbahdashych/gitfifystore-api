@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import loggerConfig from '../common/logger'
 
 import * as emailService from '../services/emailService';
+import * as cryptoService from '../services/cryptoService';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,9 +12,22 @@ const logger = loggerConfig({ label: 'email-controller', path: 'email' })
 
 export const sendEmail = async (req: Request, res: Response) => {
   try {
-    const { message } = req.body
-    await emailService.sendEmail(message)
-    res.status(200).json({ status: 1 })
+    const { type, to } = req.body
+
+    if (to) {
+
+      const hash = cryptoService.encrypt(to, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+
+      if (type === 'reg') {
+        await emailService.sendRegistrationEmail(to, hash)
+      } else {
+        res.status(200).json({ status: -1 })
+      }
+
+    } else {
+      res.status(200).json({ status: -1 })
+    }
+
   } catch (e) {
     logger.info(`Error while sending email => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
