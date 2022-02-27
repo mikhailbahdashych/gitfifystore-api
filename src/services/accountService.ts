@@ -59,3 +59,11 @@ export const changeEmail = async (id: string, newEmail: string) => {
     })
     .where('id', id)
 }
+
+export const confirmEmailRegistration = async (id: string) => {
+  return knex('users')
+    .update({
+      confirmemail: true
+    })
+    .where('id', id)
+}
