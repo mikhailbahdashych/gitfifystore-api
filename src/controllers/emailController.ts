@@ -20,12 +20,13 @@ export const sendEmail = async (req: Request, res: Response) => {
 
       if (type === 'reg') {
         await emailService.sendRegistrationEmail(to, hash)
+        res.status(200).json({ status: 1 })
       } else {
-        res.status(200).json({ status: -1 })
+        res.status(500).json({ status: -1 })
       }
 
     } else {
-      res.status(200).json({ status: -1 })
+      res.status(500).json({ status: -1 })
     }
 
   } catch (e) {
