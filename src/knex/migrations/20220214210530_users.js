@@ -4,8 +4,8 @@ exports.up = function(knex) {
     table.text('email').notNullable()
     table.text('password').notNullable()
 
-    table.timestamp("created_at").defaultTo(knex.fn.now())
-    table.timestamp("updated_at").defaultTo(knex.fn.now())
+    table.timestamp("createdat").defaultTo(knex.fn.now())
+    table.timestamp("updatedat").defaultTo(knex.fn.now())
 
   })
 };

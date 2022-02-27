@@ -1,11 +1,11 @@
 exports.up = function(knex) {
   return knex.schema.alterTable('users', table => {
-    table.text('two2fa').nullable()
+    table.text('twofa').nullable()
   })
 };
 
 exports.down = function(knex) {
   return knex.schema.alterTable('users', table => {
-    table.dropColumn('two2fa')
+    table.dropColumn('twofa')
   })
 };
