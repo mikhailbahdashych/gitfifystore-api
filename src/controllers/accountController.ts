@@ -9,8 +9,6 @@ import * as cryptoService from '../services/cryptoService';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-// TODO res without return?
-
 import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
