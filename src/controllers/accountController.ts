@@ -22,18 +22,21 @@ const getUserByJwtToken = async (jwt: string) => {
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
+
+    if (!email || !password) return res.status(500).json({ status: -1 })
+
     const user = await accountService.getUserByEmail(email)
     logger.info(`Registration user with email: ${email}`)
 
-    if (!user) {
-      password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
-      await accountService.createUser({ email, password })
-      logger.info(`User with email ${email} was created`)
-      res.status(200).json({ status: 1 })
-    } else {
+    if (user) {
       logger.info(`User with email ${email} already exists`)
-      res.status(500).json({ status: -1 })
+      return res.status(500).json({ status: -1 })
     }
+
+    password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
+    await accountService.createUser({ email, password })
+    logger.info(`User with email ${email} was created`)
+    return res.status(200).json({ status: 1 })
 
   } catch (e) {
     logger.info(`Error while register => ${e}`)
@@ -44,17 +47,17 @@ export const register = async (req: Request, res: Response) => {
 export const confirmRegistration = async (req: Request, res: Response) => {
   try {
     const { confirmToken } = req.body
-    if (confirmToken) {
-      const decryptedHash = cryptoService.decryptHex(confirmToken, `${process.env.CRYPTO_KEY_SHORT}`, null)
-      const user = await accountService.getUserByEmail(decryptedHash)
 
-      if (user && !user.confirmemail) {
-        await accountService.confirmEmailRegistration(user.id)
-        res.status(200).json({ status: 1 })
-      } else {
-        res.status(500).json({ status: -1 })
-      }
-    }
+    if (!confirmToken) return res.status(500).json({ status: -1 })
+
+    const decryptedHash = cryptoService.decryptHex(confirmToken, `${process.env.CRYPTO_KEY_SHORT}`, null)
+    const user = await accountService.getUserByEmail(decryptedHash)
+
+    // @TODO ?
+    if (!user && user.confirmemail) return res.status(500).json({ status: -1 })
+
+    await accountService.confirmEmailRegistration(user.id)
+    return res.status(200).json({ status: 1 })
 
   } catch (e) {
     logger.info(`Error while registration conformation => ${e}`)
@@ -66,20 +69,22 @@ export const login = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
 
+    if (!email || !password) res.status(500).json({ status: -1 })
+
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const result = await accountService.getUserToLogin(email, password)
     logger.info(`Login user with email: ${email}`)
 
-    if (result) {
-      const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-      const token = jwtService.sign({
-        uxd: userId,
-      });
-      res.status(200).json(token)
-    } else {
+    if (!result) {
       logger.info(`Wrong login data for user with email: ${email}`)
-      res.status(500).json({ status: -1 })
+      return res.status(500).json({ status: -1 })
     }
+
+    const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+    const token = jwtService.sign({
+      uxd: userId,
+    });
+    return res.status(200).json(token)
 
   } catch (e) {
     logger.info(`Error while login => ${e}`)
@@ -90,13 +95,17 @@ export const login = async (req: Request, res: Response) => {
 export const verifyToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
+
+    if (!token) return res.status(200).json({error: true})
+
     const result = await jwtService.getUser(token)
+
     if (!result) {
       logger.info(`Expired token: ${token}`)
       res.status(200).json({error: true})
-    } else {
-      res.status(200).json(result)
     }
+
+    return res.status(200).json(result)
   } catch (e) {
     logger.info(`Error while verify token => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -106,6 +115,9 @@ export const verifyToken = async (req: Request, res: Response) => {
 export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
+
+    if (!jwt || !code || !token) return res.status(500).json({status: -1})
+
     const user = await getUserByJwtToken(jwt)
 
     const result2F = twoFactorService.verifyToken(token.secret, code);
@@ -118,6 +130,7 @@ export const set2fa = async (req: Request, res: Response) => {
     } else {
       res.status(500).json({status: -1})
     }
+
   } catch (e) {
     logger.info(`Error while setting 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -127,10 +140,16 @@ export const set2fa = async (req: Request, res: Response) => {
 export const verify2fa = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
+
+    if (!token) return res.status(200).json({ status: -1 })
+
     const user = await getUserByJwtToken(token)
     const two2fa = await accountService.get2fa(user.id)
-    if (two2fa.two2fa) res.status(200).json({ status: 1 })
-    else res.status(200).json({ status: -1 })
+
+    if (!two2fa.two2fa) return res.status(200).json({ status: -1 })
+
+    res.status(200).json({ status: 1 })
+
   } catch (e) {
     logger.info(`Error verifying setting 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -140,13 +159,18 @@ export const verify2fa = async (req: Request, res: Response) => {
 export const changePassword = async (req: Request, res: Response) => {
   try {
     const { currentPassword, newPassword, newPasswordRepeat, token } = req.body
-    if (newPassword === newPasswordRepeat) {
-      const user = await getUserByJwtToken(token)
-      if (user.password === cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) {
-        await accountService.changePassword(user.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
-        res.status(200).json({ status: 1 })
-      }
-    }
+
+    if (
+      (!currentPassword || !newPassword || !newPasswordRepeat || !token) ||
+      (newPassword !== newPasswordRepeat)
+    ) return res.status(500).json({ status: -1 })
+
+    const user = await getUserByJwtToken(token)
+    if (user.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(500).json({ status: -1 })
+
+    await accountService.changePassword(user.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
+    res.status(200).json({ status: 1 })
+
   } catch (e) {
     logger.info(`Error while changing password => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -156,14 +180,20 @@ export const changePassword = async (req: Request, res: Response) => {
 export const changeEmail = async (req: Request, res: Response) => {
   try {
     const { currentEmail, newEmail, newEmailRepeat, token } = req.body
-    if (newEmail === newEmailRepeat) {
-      const user = await getUserByJwtToken(token)
-      const checkIfEmailUsed = await accountService.getUserByEmail(newEmail)
-      if (!checkIfEmailUsed && user.email === currentEmail) {
-        await accountService.changeEmail(user.id, newEmail)
-        res.status(200).json({ status: 1 })
-      }
-    }
+
+    if (
+      (!currentEmail || !newEmail || !newEmailRepeat || !token) ||
+      (newEmail !== newEmailRepeat)
+    ) return res.status(500).json({ status: -1 })
+
+    const user = await getUserByJwtToken(token)
+    const checkIfEmailUsed = await accountService.getUserByEmail(newEmail)
+
+    if (checkIfEmailUsed || user.email !== currentEmail) return res.status(500).json({ status: -1 })
+
+    await accountService.changeEmail(user.id, newEmail)
+    res.status(200).json({ status: 1 })
+
   } catch (e) {
     logger.info(`Error while changing email => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -173,13 +203,16 @@ export const changeEmail = async (req: Request, res: Response) => {
 export const closeAccount = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
+
+    if (!token) return res.status(200).json({ status: -1 })
+
     const user = await getUserByJwtToken(token)
-    if (user) {
-      await accountService.closeAccount(user)
-      res.status(200).json({ status: 1 })
-    } else {
-      res.status(200).json({ status: -1 })
-    }
+
+    if (!user) return res.status(200).json({ status: -1 })
+
+    await accountService.closeAccount(user)
+    res.status(200).json({ status: 1 })
+
   } catch (e) {
     logger.info(`Error while closing account => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
