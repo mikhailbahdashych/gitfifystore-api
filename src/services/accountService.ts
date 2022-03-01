@@ -1,25 +1,25 @@
 const knex = require('../knex/knex.js')
 
-export const getUserToLogin = async (email: string, password: string) => {
+export const getClientToLogin = async (email: string, password: string) => {
   return knex('users')
     .first()
     .where('email', email)
     .andWhere('password', password)
 }
 
-export const getUserByEmail = async (email: string) => {
+export const getClientByEmail = async (email: string) => {
   return knex('users')
     .first()
     .where('email', email)
 }
 
-export const getUserById = async (id: string) => {
+export const getClientById = async (id: string) => {
   return knex('users')
     .first()
     .where('id', id)
 }
 
-export const createUser = async (data: object) => {
+export const createClient = async (data: object) => {
   return knex('users')
     .insert(data)
 }
@@ -36,12 +36,12 @@ export const get2fa = async (id: string) => {
     .where('id', id)
 }
 
-export const closeAccount = async (user: { id: string, email: string }) => {
+export const closeAccount = async (client: { id: string, email: string }) => {
   return knex('users')
     .update({
-      email: `${user.email}_del`
+      email: `${client.email}_del`
     })
-    .where('id', user.id)
+    .where('id', client.id)
 }
 
 export const changePassword = async (id: string, newPassword: string) => {

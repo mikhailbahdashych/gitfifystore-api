@@ -26,7 +26,7 @@ export const sign = (payload: JwtPayload) => {
 }
 
 
-export const getUser = async (token: string) => {
+export const getClient = async (token: string) => {
   try {
     return jwt.verify(
       token,
@@ -38,7 +38,7 @@ export const getUser = async (token: string) => {
 }
 
 
-export const getUserPromise = (token: string) => {
+export const getClientPromise = (token: string) => {
   try {
     return new Promise(((resolve, reject) => {
       jwt.verify(token, publicKey, (err: any, decoded: any) => {

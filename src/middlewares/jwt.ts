@@ -7,7 +7,7 @@ export default async (req: Request, res: Response, next: any) => {
 
     if (!req.headers.authorization) return CommonResponse.common.unauthorized({ res })
 
-    const user = await jwtService.getUser(req.headers.authorization.split(' ')[1])
+    const user = await jwtService.getClient(req.headers.authorization.split(' ')[1])
 
     if (!user) return CommonResponse.common.unauthorized({ res })
 

@@ -13,10 +13,10 @@ import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
-const getUserByJwtToken = async (jwt: string) => {
-  const userJwt = await jwtService.getUser(jwt)
+const getClientByJwtToken = async (jwt: string) => {
+  const userJwt = await jwtService.getClient(jwt)
   const userId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-  return await accountService.getUserById(userId)
+  return await accountService.getClientById(userId)
 }
 
 export const register = async (req: Request, res: Response) => {
@@ -25,7 +25,7 @@ export const register = async (req: Request, res: Response) => {
 
     if (!email || !password) return res.status(500).json({ status: -1 })
 
-    const user = await accountService.getUserByEmail(email)
+    const user = await accountService.getClientByEmail(email)
     logger.info(`Registration user with email: ${email}`)
 
     if (user) {
@@ -34,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
-    await accountService.createUser({ email, password })
+    await accountService.createClient({ email, password })
     logger.info(`User with email ${email} was created`)
     return res.status(200).json({ status: 1 })
 
@@ -51,7 +51,7 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     if (!confirmToken) return res.status(500).json({ status: -1 })
 
     const decryptedHash = cryptoService.decryptHex(confirmToken, `${process.env.CRYPTO_KEY_SHORT}`, null)
-    const user = await accountService.getUserByEmail(decryptedHash)
+    const user = await accountService.getClientByEmail(decryptedHash)
 
     // @TODO ?
     if (!user && user.confirmemail) return res.status(500).json({ status: -1 })
@@ -72,7 +72,7 @@ export const login = async (req: Request, res: Response) => {
     if (!email || !password) res.status(500).json({ status: -1 })
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
-    const result = await accountService.getUserToLogin(email, password)
+    const result = await accountService.getClientToLogin(email, password)
     logger.info(`Login user with email: ${email}`)
 
     if (!result) {
@@ -98,7 +98,7 @@ export const verifyToken = async (req: Request, res: Response) => {
 
     if (!token) return res.status(200).json({error: true})
 
-    const result = await jwtService.getUser(token)
+    const result = await jwtService.getClient(token)
 
     if (!result) {
       logger.info(`Expired token: ${token}`)
@@ -118,7 +118,7 @@ export const set2fa = async (req: Request, res: Response) => {
 
     if (!jwt || !code || !token) return res.status(500).json({status: -1})
 
-    const user = await getUserByJwtToken(jwt)
+    const user = await getClientByJwtToken(jwt)
 
     const result2F = twoFactorService.verifyToken(token.secret, code);
     logger.info(`Setting 2FA for user with id: ${user.id}`)
@@ -143,7 +143,7 @@ export const verify2fa = async (req: Request, res: Response) => {
 
     if (!token) return res.status(200).json({ status: -1 })
 
-    const user = await getUserByJwtToken(token)
+    const user = await getClientByJwtToken(token)
     const two2fa = await accountService.get2fa(user.id)
 
     if (!two2fa.two2fa) return res.status(200).json({ status: -1 })
@@ -165,7 +165,7 @@ export const changePassword = async (req: Request, res: Response) => {
       (newPassword !== newPasswordRepeat)
     ) return res.status(500).json({ status: -1 })
 
-    const user = await getUserByJwtToken(token)
+    const user = await getClientByJwtToken(token)
     if (user.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(500).json({ status: -1 })
 
     await accountService.changePassword(user.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
@@ -186,8 +186,8 @@ export const changeEmail = async (req: Request, res: Response) => {
       (newEmail !== newEmailRepeat)
     ) return res.status(500).json({ status: -1 })
 
-    const user = await getUserByJwtToken(token)
-    const checkIfEmailUsed = await accountService.getUserByEmail(newEmail)
+    const user = await getClientByJwtToken(token)
+    const checkIfEmailUsed = await accountService.getClientByEmail(newEmail)
 
     if (checkIfEmailUsed || user.email !== currentEmail) return res.status(500).json({ status: -1 })
 
@@ -206,7 +206,7 @@ export const closeAccount = async (req: Request, res: Response) => {
 
     if (!token) return res.status(200).json({ status: -1 })
 
-    const user = await getUserByJwtToken(token)
+    const user = await getClientByJwtToken(token)
 
     if (!user) return res.status(200).json({ status: -1 })
 
