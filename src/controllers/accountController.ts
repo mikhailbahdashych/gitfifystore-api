@@ -67,7 +67,7 @@ export const confirmRegistration = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    let { email, password } = req.body
+    let { email, password, phone } = req.body
 
     if (!email || !password) res.status(500).json({ status: -1 })
 

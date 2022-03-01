@@ -6,7 +6,7 @@ const emailController = require('./controllers/emailController')
 // import jwt from "./middlewares/jwt";
 import validator from "./middlewares/validator";
 
-router.post('/login', validator(['email']), accountController.login)
+router.post('/login', validator(['email', 'phone']), accountController.login)
 router.post('/register', accountController.register)
 router.post('/confirm-registration', accountController.confirmRegistration)
 
