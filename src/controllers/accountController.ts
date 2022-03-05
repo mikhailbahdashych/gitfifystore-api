@@ -116,11 +116,11 @@ export const set2fa = async (req: Request, res: Response) => {
 
     const user = await getClientByJwtToken(jwt)
 
-    const result2F = twoFactorService.verifyToken(token.secret, code);
+    const result2F = twoFactorService.verifyToken(token, code);
     logger.info(`Setting 2FA for user with id: ${user.id}`)
 
     if (result2F && result2F.delta === 0) {
-      await accountService.set2fa({secret: token.secret, clientId: user.id})
+      await accountService.set2fa({secret: token, clientId: user.id})
       logger.info(`2FA was successfully created for user with id: ${user.id}`)
       res.status(200).json({ status: 1 })
     } else {

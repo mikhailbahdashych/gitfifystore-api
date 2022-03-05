@@ -26,7 +26,7 @@ export const createClient = async (data: object) => {
 
 export const set2fa = async (data: { secret: string, clientId: string }) => {
   return knex('users')
-    .update({twofa: data.secret})
+    .update({ twofa: data.secret })
     .where('id', data.clientId)
 }
 
