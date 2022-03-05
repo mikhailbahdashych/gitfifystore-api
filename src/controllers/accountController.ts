@@ -99,10 +99,7 @@ export const verifyToken = async (req: Request, res: Response) => {
 
     const result = await jwtService.getClient(token)
 
-    if (!result) {
-      logger.info(`Expired token: ${token}`)
-      return res.status(200).json({status: -1})
-    }
+    if (!result) return res.status(200).json({status: -1})
 
     return res.status(200).json({status: 1})
   } catch (e) {
