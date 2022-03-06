@@ -5,7 +5,6 @@ const emailController = require('./controllers/emailController')
 
 // @TODO validator(['email', 'phone']) Something with validators
 import validator from "./middlewares/validator";
-import jwt from "./middlewares/jwt";
 
 // Basic functions
 router.post('/login', accountController.login)
