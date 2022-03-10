@@ -79,6 +79,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(500).json({ status: -1 })
     }
 
+    if (!result.confirmemail) {
+      logger.info(`Email wasn't confirmed for user: ${email}`)
+      return res.status(500).json({ status: -1 })
+    }
+
     const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({
       uxd: userId,
