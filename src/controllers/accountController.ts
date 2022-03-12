@@ -100,13 +100,13 @@ export const verifyToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
 
-    if (!token) return res.status(200).json({error: true})
+    if (!token) return res.status(200).json({ error: true })
 
     const result = await jwtService.getClient(token)
 
-    if (!result) return res.status(200).json({status: -1})
+    if (!result) return res.status(200).json({ status: -1 })
 
-    return res.status(200).json({status: 1})
+    return res.status(200).json({ status: 1 })
   } catch (e) {
     logger.info(`Error while verify token => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -117,17 +117,17 @@ export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
 
-    if (!jwt || !code || !token) return res.status(500).json({status: -1})
+    if (!jwt || !code || !token) return res.status(500).json({ status: -1 })
 
     const user = await getClientByJwtToken(jwt)
 
     const result2Fa = twoFactorService.verifyToken(token, code);
     logger.info(`Setting 2FA for user with id: ${user.id}`)
 
-    if (!result2Fa || result2Fa.delta !== 0) return res.status(500).json({status: -1})
+    if (!result2Fa || result2Fa.delta !== 0) return res.status(500).json({ status: -1 })
 
-    await accountService.set2fa({secret: token, clientId: user.id})
-    logger.info(`2FA was successfully created for user with id: ${user.id}`)
+    await accountService.set2fa({ secret: token, clientId: user.id })
+    logger.info(`2FA was successfully created for user with id: ${ user.id }`)
     res.status(200).json({ status: 1 })
 
   } catch (e) {
