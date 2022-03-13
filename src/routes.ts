@@ -11,6 +11,7 @@ router.post('/login', accountController.login)
 router.post('/register', accountController.register)
 router.post('/confirm-registration', accountController.confirmRegistration)
 router.post('/close-account', accountController.closeAccount)
+router.post('/freeze-account', accountController.freezeAccount)
 
 // 2FA
 router.post('/set-2fa', accountController.set2fa)

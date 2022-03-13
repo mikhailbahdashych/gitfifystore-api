@@ -244,6 +244,15 @@ export const closeAccount = async (req: Request, res: Response) => {
   }
 }
 
+export const freezeAccount = async (req: Request, res: Response) => {
+  try {
+    //
+  } catch (e) {
+    logger.info(`Error while freezing account => ${e}`)
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
+
 export const resetPassword = async (req: Request, res: Response) => {
   try {
     //
