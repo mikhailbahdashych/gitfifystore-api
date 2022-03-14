@@ -14,19 +14,18 @@ export const sendEmail = async (req: Request, res: Response) => {
   try {
     const { type, to } = req.body
 
-    if (to && type) {
+    if (!to || !type) res.status(500).json({ status: -1 })
+    
+    const hash = cryptoService.encryptHex(to, `${process.env.CRYPTO_KEY_SHORT}`, null)
 
-      const hash = cryptoService.encryptHex(to, `${process.env.CRYPTO_KEY_SHORT}`, null)
-
-      if (type === 'reg') {
+    switch (type) {
+      case 'reg':
         await emailService.sendRegistrationEmail(to, hash)
         res.status(200).json({ status: 1 })
-      } else {
+        break;
+      default:
         res.status(500).json({ status: -1 })
-      }
-
-    } else {
-      res.status(500).json({ status: -1 })
+        break;
     }
 
   } catch (e) {
