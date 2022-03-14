@@ -14,7 +14,7 @@ export const sendEmail = async (req: Request, res: Response) => {
   try {
     const { type, to } = req.body
 
-    if (to) {
+    if (to && type) {
 
       const hash = cryptoService.encryptHex(to, `${process.env.CRYPTO_KEY_SHORT}`, null)
 
