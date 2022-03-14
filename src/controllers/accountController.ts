@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import moment from 'moment';
 import loggerConfig from '../common/logger'
 
 const twoFactorService = require('node-2fa')
@@ -55,6 +56,11 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     const user = await accountService.getClientByEmail(decryptedHash)
 
     if (!user && user.confirmemail) return res.status(200).json({ status: -1 })
+
+    if (
+      moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss') >=
+      moment(user.createdat).format('YYYY-MM-DD HH:mm:ss')
+    ) return res.status(200).json({ status: -2 })
 
     await accountService.confirmEmailRegistration(user.id)
     return res.status(200).json({ status: 1 })
