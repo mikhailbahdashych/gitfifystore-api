@@ -106,23 +106,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const verifyToken = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.body
-
-    if (!token) return res.status(200).json({ error: true })
-
-    const result = await jwtService.getClient(token)
-
-    if (!result) return res.status(200).json({ status: -1 })
-
-    return res.status(200).json({ status: 1 })
-  } catch (e) {
-    logger.info(`Error while verify token => ${e}`)
-    return CommonResponse.common.somethingWentWrong({ res })
-  }
-}
-
 export const clientByToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
