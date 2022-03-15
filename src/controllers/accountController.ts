@@ -8,6 +8,7 @@ import * as accountService from '../services/accountService';
 import * as jwtService from '../services/jwtService';
 import * as cryptoService from '../services/cryptoService';
 import * as dotenv from 'dotenv';
+import seedrandom from 'seedrandom';
 dotenv.config();
 
 import { CommonResponse } from "../responses/response";
@@ -36,7 +37,8 @@ export const register = async (req: Request, res: Response) => {
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
-    await accountService.createClient({ email, password })
+    const personaluuid = (seedrandom(email).quick() * 1e10).toFixed(0)
+    await accountService.createClient({ email, password, personaluuid })
     logger.info(`User with email ${email} was created`)
     return res.status(200).json({ status: 1 })
 
