@@ -17,12 +17,12 @@ const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
 const getClientByJwtToken = async (jwt: string) => {
   const userJwt = await jwtService.getClient(jwt)
+  if (!userJwt) return false
   const userId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
   return await accountService.getClientById(userId)
 }
 
 // @TODO Do something with statues (500 instead of 200)
-// @TODO Should I somehow replace this function - verifyToken - with - clientByToken
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
