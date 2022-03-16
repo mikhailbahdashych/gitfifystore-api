@@ -9,18 +9,12 @@ import * as jwtService from '../services/jwtService';
 import * as cryptoService from '../services/cryptoService';
 import * as dotenv from 'dotenv';
 import seedrandom from 'seedrandom';
+import { getClientByJwtToken } from "../common/getClientByJwtToken";
 dotenv.config();
 
 import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
-
-const getClientByJwtToken = async (jwt: string) => {
-  const userJwt = await jwtService.getClient(jwt)
-  if (!userJwt) return false
-  const userId = cryptoService.decrypt(userJwt.uxd, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
-  return await accountService.getClientById(userId)
-}
 
 // @TODO Do something with statues (500 instead of 200)
 export const register = async (req: Request, res: Response) => {
@@ -277,15 +271,6 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
     //
   } catch (e) {
     logger.info(`Error while sending verification code => ${e}`)
-    return CommonResponse.common.somethingWentWrong({ res })
-  }
-}
-
-export const generateReferralLink = async (req: Request, res: Response) => {
-  try {
-    //
-  } catch (e) {
-    logger.info(`Error while generating referral link => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }

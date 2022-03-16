@@ -1,7 +1,10 @@
+import {generateReferralLink} from "./controllers/reflinkController";
+
 const router = require('express').Router();
 
 const accountController = require('./controllers/accountController')
 const emailController = require('./controllers/emailController')
+const reflinkController = require('./controllers/reflinkController')
 
 // @TODO validator(['email', 'phone']) Something with validators
 import validator from "./middlewares/validator";
@@ -19,7 +22,7 @@ router.post('/disable-2fa', accountController.disable2fa)
 router.post('/verify-2fa', accountController.verify2fa)
 
 // Password
-router.post('/reset-password', accountController.resetPassword) // To implement
+router.post('/reset-password', accountController.resetPassword)
 router.post('/change-password', accountController.changePassword)
 
 // Email
@@ -31,6 +34,6 @@ router.post('/client-by-token', accountController.clientByToken)
 
 // Other
 router.post('/verification-code', accountController.sendVerificationCode)
-router.post('/generate-referral-link', accountController.generateReferralLink)
+router.post('/generate-referral-link', reflinkController.generateReferralLink)
 
 export default router;
