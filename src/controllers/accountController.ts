@@ -17,6 +17,7 @@ import { CommonResponse } from "../responses/response";
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
 // @TODO Do something with statues (500 instead of 200)
+// @TODO Create some function to get users by token more completely
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
@@ -103,11 +104,8 @@ export const login = async (req: Request, res: Response) => {
 export const clientByToken = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-
     if (!token) return res.status(200).json({ status: -1 })
-
     const result = await getClientByJwtToken(token)
-
     if (!result) return res.status(200).json({ status: -1 })
 
     return res.status(200).json(result)
@@ -232,16 +230,12 @@ export const changeEmail = async (req: Request, res: Response) => {
 export const closeAccount = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-
     if (!token) return res.status(200).json({ status: -1 })
-
     const user = await getClientByJwtToken(token)
-
     if (!user) return res.status(200).json({ status: -1 })
 
     await accountService.closeAccount(user)
     res.status(200).json({ status: 1 })
-
   } catch (e) {
     logger.error(`Error while closing account => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })

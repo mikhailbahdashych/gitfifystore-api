@@ -11,3 +11,8 @@ export const createReflink = async (userId: string, reflink: string) => {
 
   return knex(tableName).insert({ id: reflinkid[0].reflinkid, reflink })
 }
+
+export const getReflink = async (userId: string) => {
+  return knex(tableName)
+    .leftJoin('')
+}
