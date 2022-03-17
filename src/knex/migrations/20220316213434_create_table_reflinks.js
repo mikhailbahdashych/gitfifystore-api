@@ -9,7 +9,7 @@ exports.up = function(knex) {
 
 
     table.text('reflink').notNullable()
-    table.float('amount').nullable()
+    table.float('amount').nullable().defaultTo(0)
     table.json('invitedusers').nullable()
     table.uuid('invitedby').nullable()
 
