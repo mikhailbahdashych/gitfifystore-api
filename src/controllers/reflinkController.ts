@@ -25,7 +25,7 @@ export const generateReferralLink = async (req: Request, res: Response) => {
 
     return res.status(200).json({ status: 1 })
   } catch (e) {
-    logger.info(`Error while generating referral link => ${e}`)
+    logger.error(`Error while generating referral link => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }

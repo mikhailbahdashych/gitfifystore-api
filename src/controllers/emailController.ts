@@ -29,7 +29,7 @@ export const sendEmail = async (req: Request, res: Response) => {
     }
 
   } catch (e) {
-    logger.info(`Error while sending email => ${e}`)
+    logger.error(`Error while sending email => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }

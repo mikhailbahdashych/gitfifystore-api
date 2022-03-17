@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response) => {
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while register => ${e}`)
+    logger.error(`Error while register => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 };
@@ -63,7 +63,7 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while registration conformation => ${e}`)
+    logger.error(`Error while registration conformation => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -95,7 +95,7 @@ export const login = async (req: Request, res: Response) => {
     return res.status(200).json(token)
 
   } catch (e) {
-    logger.info(`Error while login => ${e}`)
+    logger.error(`Error while login => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 };
@@ -112,7 +112,7 @@ export const clientByToken = async (req: Request, res: Response) => {
 
     return res.status(200).json(result)
   } catch (e) {
-    logger.info(`Error while getting client by token => ${e}`)
+    logger.error(`Error while getting client by token => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -135,7 +135,7 @@ export const set2fa = async (req: Request, res: Response) => {
     res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while setting 2FA => ${e}`)
+    logger.error(`Error while setting 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -161,7 +161,7 @@ export const disable2fa = async (req: Request, res: Response) => {
     res.status(200).json({ status: -3 })
 
   } catch (e) {
-    logger.info(`Error while disabling 2FA => ${e}`)
+    logger.error(`Error while disabling 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -180,7 +180,7 @@ export const verify2fa = async (req: Request, res: Response) => {
     res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error verifying setting 2FA => ${e}`)
+    logger.error(`Error verifying setting 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -201,7 +201,7 @@ export const changePassword = async (req: Request, res: Response) => {
     res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while changing password => ${e}`)
+    logger.error(`Error while changing password => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -224,7 +224,7 @@ export const changeEmail = async (req: Request, res: Response) => {
     res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while changing email => ${e}`)
+    logger.error(`Error while changing email => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -243,7 +243,7 @@ export const closeAccount = async (req: Request, res: Response) => {
     res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.info(`Error while closing account => ${e}`)
+    logger.error(`Error while closing account => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -252,7 +252,7 @@ export const freezeAccount = async (req: Request, res: Response) => {
   try {
     //
   } catch (e) {
-    logger.info(`Error while freezing account => ${e}`)
+    logger.error(`Error while freezing account => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -261,7 +261,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   try {
     //
   } catch (e) {
-    logger.info(`Error while reset password => ${e}`)
+    logger.error(`Error while reset password => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 };
@@ -270,7 +270,7 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
   try {
     //
   } catch (e) {
-    logger.info(`Error while sending verification code => ${e}`)
+    logger.error(`Error while sending verification code => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
