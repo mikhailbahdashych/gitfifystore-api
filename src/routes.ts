@@ -34,6 +34,9 @@ router.post('/client-by-token', accountController.clientByToken)
 
 // Other
 router.post('/verification-code', accountController.sendVerificationCode)
+
+// Referral links
 router.post('/generate-referral-link', reflinkController.generateReferralLink)
+router.post('/get-referral-link', reflinkController.getReferralLink)
 
 export default router;
