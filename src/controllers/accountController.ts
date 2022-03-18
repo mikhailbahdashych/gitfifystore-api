@@ -22,18 +22,18 @@ export const register = async (req: Request, res: Response) => {
 
     if (!email || !password) return res.status(400).json({ status: -1 })
 
-    const user = await accountService.getClientByEmail(email)
-    logger.info(`Registration user with email: ${email}`)
+    const client = await accountService.getClientByEmail(email)
+    logger.info(`Registration client with email: ${email}`)
 
-    if (user) {
-      logger.info(`User with email ${email} already exists`)
+    if (client) {
+      logger.info(`client with email ${email} already exists`)
       return res.status(403).json({ status: -1 })
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personaluuid = (seedrandom(email).quick() * 1e10).toFixed(0)
     await accountService.createClient({ email, password, personaluuid })
-    logger.info(`User with email ${email} was created`)
+    logger.info(`client with email ${email} was created`)
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -49,16 +49,16 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     if (!confirmToken) return res.status(400).json({ status: -1 })
 
     const decryptedHash = cryptoService.decryptHex(confirmToken, `${process.env.CRYPTO_KEY_SHORT}`, null)
-    const user = await accountService.getClientByEmail(decryptedHash)
+    const client = await accountService.getClientByEmail(decryptedHash)
 
-    if (!user && user.confirmemail) return res.status(403).json({ status: -1 })
+    if (!client && client.confirmemail) return res.status(403).json({ status: -1 })
 
     if (
       moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss') >=
-      moment(user.createdat).format('YYYY-MM-DD HH:mm:ss')
+      moment(client.createdat).format('YYYY-MM-DD HH:mm:ss')
     ) return res.status(403).json({ status: -2 })
 
-    await accountService.confirmEmailRegistration(user.id)
+    await accountService.confirmEmailRegistration(client.id)
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -75,21 +75,21 @@ export const login = async (req: Request, res: Response) => {
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const result = await accountService.getClientToLogin(email, password)
-    logger.info(`Login user with email: ${email}`)
+    logger.info(`Login client with email: ${email}`)
 
     if (!result) {
-      logger.info(`Wrong login data for user with email: ${email}`)
+      logger.info(`Wrong login data for client with email: ${email}`)
       return res.status(403).json({ status: -1 })
     }
 
     if (!result.confirmemail) {
-      logger.info(`Email wasn't confirmed for user: ${email}`)
+      logger.info(`Email wasn't confirmed for client: ${email}`)
       return res.status(403).json({ status: -1 })
     }
 
-    const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+    const clientId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({
-      uxd: userId,
+      uxd: clientId,
     });
     return res.status(200).json(token)
 
@@ -118,16 +118,16 @@ export const set2fa = async (req: Request, res: Response) => {
 
     if (!jwt || !code || !token) return res.status(400).json({ status: -1 })
 
-    const user = await getClientByJwtToken(jwt)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(jwt)
+    if (!client) return res.status(403).json({ status: -1 })
 
     const result2Fa = twoFactorService.verifyToken(token, code);
-    logger.info(`Setting 2FA for user with id: ${user.id}`)
+    logger.info(`Setting 2FA for client with id: ${client.id}`)
 
     if (!result2Fa || result2Fa.delta !== 0) return res.status(403).json({ status: -1 })
 
-    await accountService.set2fa({ secret: token, clientId: user.id })
-    logger.info(`2FA was successfully created for user with id: ${ user.id }`)
+    await accountService.set2fa({ secret: token, clientId: client.id })
+    logger.info(`2FA was successfully created for client with id: ${ client.id }`)
     res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -140,22 +140,22 @@ export const disable2fa = async (req: Request, res: Response) => {
   try {
     const { code, jwt } = req.body
 
-    const user = await getClientByJwtToken(jwt)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(jwt)
+    if (!client) return res.status(403).json({ status: -1 })
 
     if (!code) return res.status(400).json({ status: -1 })
 
-    const twofa = await accountService.get2fa(user.id)
+    const twofa = await accountService.get2fa(client.id)
 
     if (!twofa.twofa) return res.status(403).json({ status: -1 })
 
-    const result2Fa = twoFactorService.verifyToken(user.twofa, code)
+    const result2Fa = twoFactorService.verifyToken(client.twofa, code)
 
     if (!result2Fa) return res.status(403).json({ status: -4 })
     if (result2Fa.delta !== 0) return res.status(403).json({ status: -4 })
 
-    await accountService.remove2fa(user.id)
-    logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
+    await accountService.remove2fa(client.id)
+    logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
     res.status(200).json({ status: -3 })
 
   } catch (e) {
@@ -167,10 +167,10 @@ export const disable2fa = async (req: Request, res: Response) => {
 export const verify2fa = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-    const user = await getClientByJwtToken(token)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(token)
+    if (!client) return res.status(403).json({ status: -1 })
 
-    const twofa = await accountService.get2fa(user.id)
+    const twofa = await accountService.get2fa(client.id)
 
     if (!twofa.twofa) return res.status(403).json({ status: -2 })
 
@@ -191,12 +191,12 @@ export const changePassword = async (req: Request, res: Response) => {
       (newPassword !== newPasswordRepeat)
     ) return res.status(400).json({ status: -1 })
 
-    const user = await getClientByJwtToken(token)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(token)
+    if (!client) return res.status(403).json({ status: -1 })
 
-    if (user.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
+    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
 
-    await accountService.changePassword(user.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
+    await accountService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
     res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -214,14 +214,14 @@ export const changeEmail = async (req: Request, res: Response) => {
       (newEmail !== newEmailRepeat)
     ) return res.status(400).json({ status: -1 })
 
-    const user = await getClientByJwtToken(token)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(token)
+    if (!client) return res.status(403).json({ status: -1 })
 
     const checkIfEmailUsed = await accountService.getClientByEmail(newEmail)
 
-    if (checkIfEmailUsed || user.email !== currentEmail) return res.status(400).json({ status: -1 })
+    if (checkIfEmailUsed || client.email !== currentEmail) return res.status(400).json({ status: -1 })
 
-    await accountService.changeEmail(user.id, newEmail)
+    await accountService.changeEmail(client.id, newEmail)
     res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -233,10 +233,10 @@ export const changeEmail = async (req: Request, res: Response) => {
 export const closeAccount = async (req: Request, res: Response) => {
   try {
     const { token } = req.body
-    const user = await getClientByJwtToken(token)
-    if (!user) return res.status(403).json({ status: -1 })
+    const client = await getClientByJwtToken(token)
+    if (!client) return res.status(403).json({ status: -1 })
 
-    await accountService.closeAccount(user)
+    await accountService.closeAccount(client)
     res.status(200).json({ status: 1 })
   } catch (e) {
     logger.error(`Error while closing account => ${e}`)
