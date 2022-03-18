@@ -16,7 +16,6 @@ import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
-// @TODO Do something with statues (500 instead of 200)
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body
@@ -28,7 +27,7 @@ export const register = async (req: Request, res: Response) => {
 
     if (user) {
       logger.info(`User with email ${email} already exists`)
-      return res.status(200).json({ status: -1 })
+      return res.status(403).json({ status: -1 })
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
@@ -52,12 +51,12 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     const decryptedHash = cryptoService.decryptHex(confirmToken, `${process.env.CRYPTO_KEY_SHORT}`, null)
     const user = await accountService.getClientByEmail(decryptedHash)
 
-    if (!user && user.confirmemail) return res.status(400).json({ status: -1 })
+    if (!user && user.confirmemail) return res.status(403).json({ status: -1 })
 
     if (
       moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss') >=
       moment(user.createdat).format('YYYY-MM-DD HH:mm:ss')
-    ) return res.status(200).json({ status: -2 })
+    ) return res.status(403).json({ status: -2 })
 
     await accountService.confirmEmailRegistration(user.id)
     return res.status(200).json({ status: 1 })
@@ -80,12 +79,12 @@ export const login = async (req: Request, res: Response) => {
 
     if (!result) {
       logger.info(`Wrong login data for user with email: ${email}`)
-      return res.status(200).json({ status: -1 })
+      return res.status(403).json({ status: -1 })
     }
 
     if (!result.confirmemail) {
       logger.info(`Email wasn't confirmed for user: ${email}`)
-      return res.status(200).json({ status: -1 })
+      return res.status(403).json({ status: -1 })
     }
 
     const userId = cryptoService.encrypt(result.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
@@ -125,7 +124,7 @@ export const set2fa = async (req: Request, res: Response) => {
     const result2Fa = twoFactorService.verifyToken(token, code);
     logger.info(`Setting 2FA for user with id: ${user.id}`)
 
-    if (!result2Fa || result2Fa.delta !== 0) return res.status(200).json({ status: -1 })
+    if (!result2Fa || result2Fa.delta !== 0) return res.status(403).json({ status: -1 })
 
     await accountService.set2fa({ secret: token, clientId: user.id })
     logger.info(`2FA was successfully created for user with id: ${ user.id }`)
@@ -148,12 +147,12 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     const twofa = await accountService.get2fa(user.id)
 
-    if (!twofa.twofa) return res.status(200).json({ status: -1 })
+    if (!twofa.twofa) return res.status(403).json({ status: -1 })
 
     const result2Fa = twoFactorService.verifyToken(user.twofa, code)
 
-    if (!result2Fa) return res.status(200).json({ status: -4 })
-    if (result2Fa.delta !== 0) return res.status(200).json({ status: -4 })
+    if (!result2Fa) return res.status(403).json({ status: -4 })
+    if (result2Fa.delta !== 0) return res.status(403).json({ status: -4 })
 
     await accountService.remove2fa(user.id)
     logger.info(`2FA was successfully disabled for user with id: ${user.id}`)
@@ -173,7 +172,7 @@ export const verify2fa = async (req: Request, res: Response) => {
 
     const twofa = await accountService.get2fa(user.id)
 
-    if (!twofa.twofa) return res.status(200).json({ status: -2 })
+    if (!twofa.twofa) return res.status(403).json({ status: -2 })
 
     res.status(200).json({ status: 1 })
 
@@ -190,12 +189,12 @@ export const changePassword = async (req: Request, res: Response) => {
     if (
       (!currentPassword || !newPassword || !newPasswordRepeat || !token) ||
       (newPassword !== newPasswordRepeat)
-    ) return res.status(200).json({ status: -1 })
+    ) return res.status(400).json({ status: -1 })
 
     const user = await getClientByJwtToken(token)
     if (!user) return res.status(403).json({ status: -1 })
 
-    if (user.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(200).json({ status: -1 })
+    if (user.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
 
     await accountService.changePassword(user.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
     res.status(200).json({ status: 1 })
@@ -213,14 +212,14 @@ export const changeEmail = async (req: Request, res: Response) => {
     if (
       (!currentEmail || !newEmail || !newEmailRepeat || !token) ||
       (newEmail !== newEmailRepeat)
-    ) return res.status(200).json({ status: -1 })
+    ) return res.status(400).json({ status: -1 })
 
     const user = await getClientByJwtToken(token)
     if (!user) return res.status(403).json({ status: -1 })
 
     const checkIfEmailUsed = await accountService.getClientByEmail(newEmail)
 
-    if (checkIfEmailUsed || user.email !== currentEmail) return res.status(200).json({ status: -1 })
+    if (checkIfEmailUsed || user.email !== currentEmail) return res.status(400).json({ status: -1 })
 
     await accountService.changeEmail(user.id, newEmail)
     res.status(200).json({ status: 1 })

@@ -14,7 +14,7 @@ export const sendEmail = async (req: Request, res: Response) => {
   try {
     const { type, to } = req.body
 
-    if (!to || !type) res.status(500).json({ status: -1 })
+    if (!to || !type) res.status(403).json({ status: -1 })
 
     const hash = cryptoService.encryptHex(to, `${process.env.CRYPTO_KEY_SHORT}`, null)
 
@@ -24,7 +24,7 @@ export const sendEmail = async (req: Request, res: Response) => {
         res.status(200).json({ status: 1 })
         break;
       default:
-        res.status(500).json({ status: -1 })
+        res.status(403).json({ status: -1 })
         break;
     }
 
