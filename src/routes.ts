@@ -1,5 +1,3 @@
-import {generateReferralLink, getClientsByReferralLink} from "./controllers/reflinkController";
-
 const router = require('express').Router();
 
 const accountController = require('./controllers/accountController')
