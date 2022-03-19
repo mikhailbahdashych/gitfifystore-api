@@ -19,3 +19,8 @@ export const getReflink = async (userId: string) => {
     .first(`${tableName}.reflink`, `${tableName}.invitedclients`)
 }
 
+export const findReflink = async (reflink: string) => {
+  return knex(tableName)
+    .first('reflink')
+    .where('reflink', reflink)
+}
