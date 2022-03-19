@@ -10,6 +10,7 @@ import * as cryptoService from '../services/cryptoService';
 import * as dotenv from 'dotenv';
 import seedrandom from 'seedrandom';
 import { getClientByJwtToken } from "../common/getClientByJwtToken";
+import { hideEmail } from "../common/hideEmail";
 dotenv.config();
 
 import { CommonResponse } from "../responses/response";
@@ -104,6 +105,7 @@ export const clientByToken = async (req: Request, res: Response) => {
     const { token } = req.body
     const result = await getClientByJwtToken(token)
     if (!result) return res.status(403).json({ status: -1 })
+    result.email = hideEmail(result.email)
 
     return res.status(200).json(result)
   } catch (e) {
