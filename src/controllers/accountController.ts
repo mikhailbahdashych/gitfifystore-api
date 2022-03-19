@@ -63,7 +63,7 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.error(`Error while registration conformation => ${e}`)
+    logger.error(`Error while registration confirmation => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
