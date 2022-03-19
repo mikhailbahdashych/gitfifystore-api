@@ -35,7 +35,7 @@ export const getReferralLink = async (req: Request, res: Response) => {
     const result = await reflinkService.getReflink(user.id)
     if (!result) return res.status(200).json({ status: -1 })
 
-    return res.status(200).json(result.reflink)
+    return res.status(200).json(result)
   } catch (e) {
     logger.error(`Error while getting referral link => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
