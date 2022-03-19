@@ -36,5 +36,6 @@ router.post('/verification-code', accountController.sendVerificationCode)
 // Referral links
 router.post('/generate-referral-link', reflinkController.generateReferralLink)
 router.post('/get-referral-link', reflinkController.getReferralLink)
+router.get('/registration-from-reflink/:reflink', reflinkController.findReferralLink)
 
 export default router;

@@ -41,3 +41,14 @@ export const getReferralLink = async (req: Request, res: Response) => {
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
+
+export const findReferralLink = async (req: Request, res: Response) => {
+  try {
+    const { reflink } = req.params
+    console.log('reflink', reflink)
+    return res.status(200).json({ status: 1 })
+  } catch (e) {
+    logger.error(`Error while finding referral link => ${e}`)
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
