@@ -183,7 +183,7 @@ export const verify2fa = async (req: Request, res: Response) => {
 
     const twofa = await accountService.get2fa(client.id)
 
-    if (!twofa.twofa) return res.status(403).json({ status: -2 })
+    if (!twofa.twofa) return res.status(200).json({ status: -2 })
 
     res.status(200).json({ status: 1 })
 
