@@ -7,9 +7,11 @@ const twoFactorService = require('node-2fa')
 import * as accountService from '../services/accountService';
 import * as jwtService from '../services/jwtService';
 import * as cryptoService from '../services/cryptoService';
+import * as reflinkService from '../services/reflinkService';
 import * as dotenv from 'dotenv';
 import seedrandom from 'seedrandom';
 import { getClientByJwtToken } from "../common/getClientByJwtToken";
+import { hideEmail } from "../common/hideEmail";
 dotenv.config();
 
 import { CommonResponse } from "../responses/response";
@@ -18,7 +20,7 @@ const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
 export const register = async (req: Request, res: Response) => {
   try {
-    let { email, password } = req.body
+    let { email, password, reflink } = req.body
 
     if (!email || !password) return res.status(400).json({ status: -1 })
 
@@ -26,14 +28,23 @@ export const register = async (req: Request, res: Response) => {
     logger.info(`Registration client with email: ${email}`)
 
     if (client) {
-      logger.info(`client with email ${email} already exists`)
+      logger.info(`Client with email ${email} already exists`)
       return res.status(403).json({ status: -1 })
     }
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const personaluuid = (seedrandom(email).quick() * 1e10).toFixed(0)
-    await accountService.createClient({ email, password, personaluuid })
-    logger.info(`client with email ${email} was created`)
+    const createdClient = await accountService.createClient({ email, password, personaluuid })
+    logger.info(`Client with email ${email} was created`)
+
+    console.log('createdClient', createdClient[0])
+    if (reflink) {
+      const invitationData = await reflinkService.getRelinkCreationData(reflink)
+      // if createdClient.id not in invitationData.invitedclients
+      console.log('invitationData', invitationData)
+
+    }
+
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
@@ -62,7 +73,7 @@ export const confirmRegistration = async (req: Request, res: Response) => {
     return res.status(200).json({ status: 1 })
 
   } catch (e) {
-    logger.error(`Error while registration conformation => ${e}`)
+    logger.error(`Error while registration confirmation => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
@@ -104,6 +115,7 @@ export const clientByToken = async (req: Request, res: Response) => {
     const { token } = req.body
     const result = await getClientByJwtToken(token)
     if (!result) return res.status(403).json({ status: -1 })
+    result.email = hideEmail(result.email)
 
     return res.status(200).json(result)
   } catch (e) {

@@ -11,12 +11,6 @@ exports.up = function(knex) {
     table.text('reflink').notNullable()
     table.float('amount').nullable().defaultTo(0)
     table.json('invitedclients').nullable()
-    table.uuid('invitedby').nullable()
-
-    table
-      .foreign('invitedby')
-      .references('id')
-      .inTable('clients')
 
     table.timestamp("createdat").defaultTo(knex.fn.now())
     table.timestamp("updatedat").defaultTo(knex.fn.now())

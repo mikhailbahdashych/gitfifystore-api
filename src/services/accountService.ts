@@ -10,19 +10,31 @@ export const getClientToLogin = async (email: string, password: string) => {
 
 export const getClientByEmail = async (email: string) => {
   return knex(tableName)
-    .first()
-    .where('email', email)
+    .first(
+      'id',
+      'personaluuid',
+      'email',
+      'confirmemail',
+      'emailchange',
+      'phone'
+    ).where('email', email)
 }
 
 export const getClientById = async (id: string) => {
   return knex(tableName)
-    .first()
-    .where('id', id)
+    .first(
+      'id',
+      'personaluuid',
+      'email',
+      'confirmemail',
+      'emailchange',
+      'phone'
+    ).where('id', id)
 }
 
 export const createClient = async (data: object) => {
   return knex(tableName)
-    .insert(data)
+    .insert(data).returning('*')
 }
 
 export const set2fa = async (data: { secret: string, clientId: string }) => {
