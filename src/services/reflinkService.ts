@@ -12,15 +12,26 @@ export const createReflink = async (userId: string, reflink: string) => {
   return knex(tableName).insert({ id: reflinkid[0].reflinkid, reflink })
 }
 
-export const getReflink = async (userId: string) => {
+export const getReflinkByInvitorId = async (userId: string) => {
   return knex(tableName)
     .leftJoin('clients', 'clients.reflinkid', `${tableName}.id`)
     .where('clients.id', userId)
     .first(`${tableName}.reflink`, `${tableName}.invitedclients`)
 }
 
-export const findReflink = async (reflink: string) => {
+export const findReflinkByName = async (reflink: string) => {
   return knex(tableName)
     .first('reflink')
     .where('reflink', reflink)
+}
+
+export const getRelinkCreationData = async (reflink: string) => {
+  return knex(tableName)
+    .leftJoin('clients', 'clients.reflinkid', `${tableName}.id`)
+    .where(`${tableName}.reflink`, reflink)
+    .first('clients.id', `${tableName}.invitedclients`)
+}
+
+export const addClientToReferralProgram = async () => {
+
 }

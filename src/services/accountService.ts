@@ -34,7 +34,7 @@ export const getClientById = async (id: string) => {
 
 export const createClient = async (data: object) => {
   return knex(tableName)
-    .insert(data)
+    .insert(data).returning('*')
 }
 
 export const set2fa = async (data: { secret: string, clientId: string }) => {
