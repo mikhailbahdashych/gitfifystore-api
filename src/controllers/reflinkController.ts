@@ -49,7 +49,7 @@ export const getReferralLink = async (req: Request, res: Response) => {
     )
     accs.forEach(item => {
       item.email = hideEmail(item.email)
-      item.invitedAt = moment().format('YYYY-MM-DD')
+      item.invitedAt = moment().format('YYYY-MM-DD HH:mm:ss')
     })
     result.invitedclients = accs
 
