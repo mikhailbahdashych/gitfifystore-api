@@ -9,6 +9,7 @@ import { CommonResponse } from "../responses/response";
 import { getClientByJwtToken } from "../common/getClientByJwtToken";
 import { hideEmail } from "../common/hideEmail";
 import moment from "moment";
+import * as QRCode from "qrcode";
 
 const logger = loggerConfig({ label: 'reflink-controller', path: 'reflink' })
 
@@ -52,6 +53,8 @@ export const getReferralLink = async (req: Request, res: Response) => {
       item.invitedAt = moment().format('YYYY-MM-DD HH:mm:ss')
     })
     result.invitedclients = accs
+
+    result['qrcode'] = await QRCode.toDataURL(`localhost:8010/reflink/${result.reflink}`, { margin: 1 })
 
     return res.status(200).json(result)
   } catch (e) {
