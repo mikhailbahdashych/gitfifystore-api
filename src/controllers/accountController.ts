@@ -37,12 +37,11 @@ export const register = async (req: Request, res: Response) => {
     const createdClient = await accountService.createClient({ email, password, personaluuid })
     logger.info(`Client with email ${email} was created`)
 
-    console.log('createdClient', createdClient[0])
     if (reflink) {
-      const invitationData = await reflinkService.getRelinkCreationData(reflink)
-      // if createdClient.id not in invitationData.invitedclients
-      console.log('invitationData', invitationData)
+      const existingReflink = await reflinkService.findReflinkByName(reflink)
+      if (!existingReflink) return res.status(400).json({ status: -2 })
 
+      await reflinkService.addClientToReferralProgram(createdClient[0].id, reflink)
     }
 
     return res.status(200).json({ status: 1 })
@@ -184,7 +183,7 @@ export const verify2fa = async (req: Request, res: Response) => {
 
     const twofa = await accountService.get2fa(client.id)
 
-    if (!twofa.twofa) return res.status(403).json({ status: -2 })
+    if (!twofa.twofa) return res.status(200).json({ status: -2 })
 
     res.status(200).json({ status: 1 })
 

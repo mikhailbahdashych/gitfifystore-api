@@ -3,9 +3,13 @@ import loggerConfig from '../common/logger'
 
 import * as crypto from "crypto";
 import * as reflinkService from '../services/reflinkService'
+import * as accountService from '../services/accountService'
 
 import { CommonResponse } from "../responses/response";
 import { getClientByJwtToken } from "../common/getClientByJwtToken";
+import { hideEmail } from "../common/hideEmail";
+import moment from "moment";
+import * as QRCode from "qrcode";
 
 const logger = loggerConfig({ label: 'reflink-controller', path: 'reflink' })
 
@@ -32,8 +36,25 @@ export const getReferralLink = async (req: Request, res: Response) => {
     const user = await getClientByJwtToken(token)
     if (!user) return res.status(403).json({ status: -1 })
 
-    const result = await reflinkService.getReflinkByInvitorId(user.id)
+    const result = await reflinkService.getReflinkByInviteeId(user.id)
     if (!result) return res.status(400).json({ status: -1 })
+
+    const accs: any[] = []
+    await Promise.all(
+      Object.entries(result.invitedclients).map(async item => {
+        const { email } = await accountService.getClientById(item[0])
+        accs.push({
+          email, invitedAt: item[1]
+        })
+      })
+    )
+    accs.forEach(item => {
+      item.email = hideEmail(item.email)
+      item.invitedAt = moment().format('YYYY-MM-DD HH:mm:ss')
+    })
+    result.invitedclients = accs
+
+    result['qrcode'] = await QRCode.toDataURL(`localhost:8010/reflink/${result.reflink}`, { margin: 1 })
 
     return res.status(200).json(result)
   } catch (e) {
