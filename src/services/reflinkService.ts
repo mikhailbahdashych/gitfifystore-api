@@ -27,8 +27,15 @@ export const findReflinkByName = async (reflink: string) => {
 }
 
 export const addClientToReferralProgram = async (clientId: string, reflink: string) => {
+  let previousClients = await knex(tableName)
+    .first('invitedclients')
+    .where('reflink', reflink)
+
+  if (!previousClients.invitedclients) previousClients.invitedclients = { [clientId]: moment() }
+  else previousClients.invitedclients[clientId] = moment()
+
   return knex(tableName)
     .update({
-      invitedclients: JSON.stringify({[clientId]: moment()})
+      invitedclients: JSON.stringify(previousClients.invitedclients)
     }).where('reflink', reflink)
 }

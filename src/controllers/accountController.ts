@@ -39,8 +39,9 @@ export const register = async (req: Request, res: Response) => {
     logger.info(`Client with email ${email} was created`)
 
     if (reflink) {
-      const invitationData = await reflinkService.findReflinkByName(reflink)
-      // if createdClient[0].id not in invitationData.invitedclients
+      const existingReflink = await reflinkService.findReflinkByName(reflink)
+      if (!existingReflink) return res.status(400).json({ status: -2 })
+
       await reflinkService.addClientToReferralProgram(createdClient[0].id, reflink)
     }
 
