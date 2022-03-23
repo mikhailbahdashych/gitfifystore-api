@@ -85,7 +85,6 @@ export const login = async (req: Request, res: Response) => {
 
     password = cryptoService.hashPassword(password, process.env.CRYPTO_SALT.toString())
     const client = await accountService.getClientToLogin(email, password)
-    console.log(client)
     logger.info(`Login client with email: ${email}`)
 
     if (!client) {
