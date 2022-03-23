@@ -5,7 +5,7 @@ export class CommonResponses {
     const { res } = data;
 
     return res.status(400).json({
-      status: 400,
+      status: -1,
       message: 'bad-request'
     })
   }
@@ -14,7 +14,7 @@ export class CommonResponses {
     const { res } = data;
 
     return res.status(401).json({
-      status: 401,
+      status: -1,
       message: 'unauthorized',
     });
   }
@@ -23,7 +23,7 @@ export class CommonResponses {
     const { res } = data;
 
     return res.status(500).json({
-      status: 500,
+      status: -1,
       message: 'something-went-wrong',
     });
   }
@@ -32,7 +32,7 @@ export class CommonResponses {
     const { res } = data;
 
     return res.status(403).json({
-      status: 403,
+      status: -1,
       message: 'access-forbidden',
     });
   }
