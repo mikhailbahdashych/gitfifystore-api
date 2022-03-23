@@ -63,11 +63,10 @@ export const confirmRegistration = async (req: Request, res: Response) => {
 
     if (!client && client.confirmemail) return CommonResponse.common.accessForbidden({ res })
 
-    // @TODO There should be status -2, not -1
     if (
       moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss') >=
       moment(client.createdat).format('YYYY-MM-DD HH:mm:ss')
-    ) return CommonResponse.common.accessForbidden({ res })
+    ) return CommonResponse.common.accessForbidden({ res }, -2)
 
     await accountService.confirmEmailRegistration(client.id)
     return CommonResponse.common.success({ res })
@@ -156,9 +155,8 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     const result2Fa = twoFactorService.verifyToken(twofa, code)
 
-    // @TODO Status -4
-    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
-    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res }, -4)
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res }, -4)
 
     await accountService.remove2fa(client.id)
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
@@ -204,9 +202,8 @@ export const loginWith2fa = async (req: Request, res: Response) => {
 
     const result2Fa = twoFactorService.verifyToken(twofa, twoFaCode)
 
-    // @TODO Status -4 (2)
-    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
-    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res }, -4)
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res }, -4)
 
     const clientId = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
     const token = jwtService.sign({
