@@ -130,7 +130,7 @@ export const set2fa = async (req: Request, res: Response) => {
 
     if (!result2Fa || result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
-    await accountService.set2fa({ secret: token, clientId: client.id })
+    await accountService.set2fa(token, client.id)
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
     return CommonResponse.common.success({ res })
 

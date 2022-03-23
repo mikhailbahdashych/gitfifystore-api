@@ -39,10 +39,10 @@ export const createClient = async (data: object) => {
     .insert(data).returning('*')
 }
 
-export const set2fa = async (data: { secret: string, clientId: string }) => {
+export const set2fa = async (secret: string, clientId: string) => {
   return knex(tableName)
-    .update({ twofa: data.secret })
-    .where('id', data.clientId)
+    .update({ twofa: secret })
+    .where('id', clientId)
 }
 
 export const remove2fa = async (id: string) => {
