@@ -154,7 +154,7 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     if (!twofa) return CommonResponse.common.accessForbidden({ res })
 
-    const result2Fa = twoFactorService.verifyToken(client.twofa, code)
+    const result2Fa = twoFactorService.verifyToken(twofa, code)
 
     // @TODO Status -4
     if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
