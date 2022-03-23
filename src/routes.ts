@@ -18,7 +18,7 @@ router.post('/freeze-account', accountController.freezeAccount)
 router.post('/set-2fa', accountController.set2fa)
 router.post('/disable-2fa', accountController.disable2fa)
 router.post('/verify-2fa', accountController.verify2fa)
-router.post('/check-2fa', accountController.check2fa)
+router.post('/login-with-2fa', accountController.loginWith2fa)
 
 // Password
 router.post('/reset-password', accountController.resetPassword)

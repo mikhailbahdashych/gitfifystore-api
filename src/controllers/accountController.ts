@@ -188,9 +188,29 @@ export const verify2fa = async (req: Request, res: Response) => {
   }
 }
 
-export const check2fa = async (req: Request, res: Response) => {
+export const loginWith2fa = async (req: Request, res: Response) => {
   try {
-    const { email, twofa } = req.body
+    const { email, twoFaCode } = req.body
+
+    const client = await accountService.getClientByEmail(email)
+
+    if (!client) return res.status(403).json({ status: -1 })
+
+    const { twofa } = await accountService.getClientById(client.id)
+
+    if (!twofa) return res.status(403).json({ status: -1 })
+
+    const result2Fa = twoFactorService.verifyToken(twofa, twoFaCode)
+
+    if (!result2Fa) return res.status(403).json({ status: -4 })
+    if (result2Fa.delta !== 0) return res.status(403).json({ status: -4 })
+
+    const clientId = cryptoService.encrypt(client.id, process.env.CRYPTO_KEY.toString(), process.env.CRYPTO_IV.toString())
+    const token = jwtService.sign({
+      uxd: clientId,
+    });
+
+    res.status(200).json({ status: 1, token })
   } catch (e) {
     logger.error(`Error while checking 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
