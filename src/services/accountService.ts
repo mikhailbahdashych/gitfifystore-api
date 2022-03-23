@@ -16,6 +16,7 @@ export const getClientByEmail = async (email: string) => {
       'email',
       'confirmemail',
       'emailchange',
+      'twofa',
       'phone'
     ).where('email', email)
 }
@@ -28,6 +29,7 @@ export const getClientById = async (id: string) => {
       'email',
       'confirmemail',
       'emailchange',
+      'twofa',
       'phone'
     ).where('id', id)
 }
@@ -41,12 +43,6 @@ export const set2fa = async (data: { secret: string, clientId: string }) => {
   return knex(tableName)
     .update({ twofa: data.secret })
     .where('id', data.clientId)
-}
-
-export const get2fa = async (id: string) => {
-  return knex(tableName)
-    .first('twofa')
-    .where('id', id)
 }
 
 export const remove2fa = async (id: string) => {

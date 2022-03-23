@@ -18,6 +18,8 @@ import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'account-controller', path: 'account' })
 
+// @TODO Do something with common responses
+
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password, reflink } = req.body
@@ -116,20 +118,6 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const clientByToken = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.body
-    const client = await getClientByJwtToken(token)
-    if (!client) return res.status(403).json({ status: -1 })
-    client.email = hideEmail(client.email)
-
-    return res.status(200).json(client)
-  } catch (e) {
-    logger.error(`Error while getting client by token => ${e}`)
-    return CommonResponse.common.somethingWentWrong({ res })
-  }
-}
-
 export const set2fa = async (req: Request, res: Response) => {
   try {
     const { jwt, code, token } = req.body
@@ -163,9 +151,9 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     if (!code) return res.status(400).json({ status: -1 })
 
-    const twofa = await accountService.get2fa(client.id)
+    const { twofa } = await accountService.getClientById(client.id)
 
-    if (!twofa.twofa) return res.status(403).json({ status: -1 })
+    if (!twofa) return res.status(403).json({ status: -1 })
 
     const result2Fa = twoFactorService.verifyToken(client.twofa, code)
 
@@ -188,14 +176,37 @@ export const verify2fa = async (req: Request, res: Response) => {
     const client = await getClientByJwtToken(token)
     if (!client) return res.status(403).json({ status: -1 })
 
-    const twofa = await accountService.get2fa(client.id)
+    const { twofa } = await accountService.getClientById(client.id)
 
-    if (!twofa.twofa) return res.status(200).json({ status: -2 })
+    if (!twofa) return res.status(200).json({ status: -2 })
 
     res.status(200).json({ status: 1 })
 
   } catch (e) {
     logger.error(`Error verifying setting 2FA => ${e}`)
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
+
+export const check2fa = async (req: Request, res: Response) => {
+  try {
+    const { email, twofa } = req.body
+  } catch (e) {
+    logger.error(`Error while checking 2FA => ${e}`)
+    return CommonResponse.common.somethingWentWrong({ res })
+  }
+}
+
+export const clientByToken = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.body
+    const client = await getClientByJwtToken(token)
+    if (!client) return res.status(403).json({ status: -1 })
+    client.email = hideEmail(client.email)
+
+    return res.status(200).json(client)
+  } catch (e) {
+    logger.error(`Error while getting client by token => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
   }
 }
