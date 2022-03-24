@@ -3,6 +3,7 @@ const router = require('express').Router();
 const clientController = require('./controllers/clientController')
 const emailController = require('./controllers/emailController')
 const reflinkController = require('./controllers/reflinkController')
+const walletController = require('./controllers/walletController')
 
 // @TODO validator(['email', 'phone']) Something with validators
 import validator from "./middlewares/validator";
@@ -34,5 +35,8 @@ router.post('/client-by-token', clientController.clientByToken)
 router.post('/generate-referral-link', reflinkController.generateReferralLink)
 router.post('/get-referral-link', reflinkController.getReferralLink)
 router.get('/registration-from-reflink/:reflink', reflinkController.findReferralLink)
+
+// Wallet
+router.post('/check-wallets', walletController.checkWallets)
 
 export default router;

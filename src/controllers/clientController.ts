@@ -16,7 +16,7 @@ dotenv.config();
 
 import { CommonResponse } from "../responses/response";
 
-const logger = loggerConfig({ label: 'account-controller', path: 'account' })
+const logger = loggerConfig({ label: 'client-controller', path: 'client' })
 
 export const register = async (req: Request, res: Response) => {
   try {
