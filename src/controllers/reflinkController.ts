@@ -40,14 +40,13 @@ export const getReferralLink = async (req: Request, res: Response) => {
     if (!result) return res.status(400).json({ status: -1 })
 
     const accs: any[] = []
-    await Promise.all(
-      Object.entries(result.invitedclients).map(async item => {
-        const { email } = await clientService.getClientById(item[0])
-        accs.push({
-          email, invitedAt: item[1]
-        })
-      })
-    )
+    if (result.invitedclients) {
+      await Promise.all(
+        Object.entries(result.invitedclients).map(async item => {
+          const { email } = await clientService.getClientById(item[0])
+          accs.push({ email, invitedAt: item[1] })
+        }))
+    }
     accs.forEach(item => {
       item.email = hideEmail(item.email)
       item.invitedAt = moment().format('YYYY-MM-DD HH:mm:ss')
