@@ -6,3 +6,7 @@ export const getWalletsByClientId = async (id: string) => {
     .select('*')
     .where('clientid', id)
 }
+
+export const generateWallets = async (wallets: any) => {
+
+}
