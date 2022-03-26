@@ -3,13 +3,9 @@ import DailyRotateFile from 'winston-daily-rotate-file';
 
 const { createLogger, format, transports } = pkg;
 
-const {
-  combine, timestamp, label, printf, colorize, json,
-} = format;
+const { combine, timestamp, label, printf, colorize, json } = format;
 
-const myFormat = printf(({
-                           level, message, stack, label, timestamp,
-                         }) => {
+const myFormat = printf(({ level, message, stack, label, timestamp }) => {
   let errorString = `${timestamp} [${label}] ${level}: ${JSON.stringify(message)}`;
   if (stack) {
     errorString += `\nSTACK:\n${stack}`;
