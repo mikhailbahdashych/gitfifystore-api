@@ -12,8 +12,9 @@ import seedrandom from 'seedrandom';
 import { getClientByJwtToken } from "../common/getClientByJwtToken";
 import { hideEmail } from "../common/hideEmail";
 
-// @TODO Probably I should do something to make 2FA check while login, otherwise I will have to create x2 endpoints
-
+// @TODO Probably I should do something to make 2FA check while login,
+//  otherwise I will have to create x2 endpoints
+//  (IDEA) Just do it using v-2fa endpoint (btw, change its name)
 import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'client-controller', path: 'client' })
