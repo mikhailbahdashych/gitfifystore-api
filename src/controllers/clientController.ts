@@ -16,6 +16,9 @@ import { CommonResponse } from "../responses/response";
 
 const logger = loggerConfig({ label: 'client-controller', path: 'client' })
 
+// @TODO Do something with checkFor2fa and getClientByToken endpoints
+// Probably checkFor2fa should be removed, and just using getClientByToken endpoint I can get all data
+
 export const register = async (req: Request, res: Response) => {
   try {
     let { email, password, reflink } = req.body
