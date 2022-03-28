@@ -10,6 +10,7 @@ import { getClientByJwtToken } from "../common/getClientByJwtToken";
 import { hideEmail } from "../common/hideEmail";
 import moment from "moment";
 import * as QRCode from "qrcode";
+import {getClientByEmailOrId} from "../services/clientService";
 
 const logger = loggerConfig({ label: 'reflink-controller', path: 'reflink' })
 
@@ -43,7 +44,7 @@ export const getReferralLink = async (req: Request, res: Response) => {
     if (result.invitedclients) {
       await Promise.all(
         Object.entries(result.invitedclients).map(async item => {
-          const { email } = await clientService.getClientById(item[0])
+          const { email } = await clientService.getClientByEmailOrId({ email: null, id: item[0] })
           accs.push({ email, invitedAt: item[1] })
         }))
     }

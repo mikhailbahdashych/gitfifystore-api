@@ -8,34 +8,7 @@ export const getClientToLogin = async (email: string, password: string) => {
     .andWhere('password', password)
 }
 
-// @TODO Remove and replace those 2
-export const getClientByEmail = async (email: string) => {
-  return knex(tableName)
-    .first(
-      'id',
-      'personaluuid',
-      'email',
-      'confirmemail',
-      'emailchange',
-      'twofa',
-      'phone'
-    ).where('email', email)
-}
-
-export const getClientById = async (id: string) => {
-  return knex(tableName)
-    .first(
-      'id',
-      'personaluuid',
-      'email',
-      'confirmemail',
-      'emailchange',
-      'twofa',
-      'phone'
-    ).where('id', id)
-}
-
-export const getClientByEmailOrId = async (data: {email: string, id: string}) => {
+export const getClientByEmailOrId = async (data: { email: string, id: string }) => {
   return knex(tableName)
     .first(
       'id',
