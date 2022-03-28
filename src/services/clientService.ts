@@ -1,10 +1,6 @@
 const knex = require('../knex/knex.js')
 const tableName = 'clients'
-
-type Data = {
-  email?: any,
-  id?: any
-}
+import { getClientByEmailOrIdData } from "../interfaces/interfaces";
 
 export const getClientToLogin = async (email: string, password: string) => {
   return knex(tableName)
@@ -13,7 +9,7 @@ export const getClientToLogin = async (email: string, password: string) => {
     .andWhere('password', password)
 }
 
-export const getClientByEmailOrId = async (data: Data) => {
+export const getClientByEmailOrId = async (data: getClientByEmailOrIdData) => {
   return knex(tableName)
     .first(
       'id',
