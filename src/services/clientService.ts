@@ -79,9 +79,8 @@ export const getFrozenAccount = async (id: string) => {
     .first().where('clientid', id)
 }
 
-// fix here
-export const freezeAccount = async (data: object) => {
-  return knex('freezedaccounts').insert(data)
+export const freezeAccount = async (id: string) => {
+  return knex('freezedaccounts').insert(id)
 }
 
 export const unfreezeAccount = async (id: string) => {
