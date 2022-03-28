@@ -205,7 +205,9 @@ export const clientByToken = async (req: Request, res: Response) => {
     const { token } = req.body
     const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
+
     client.email = hideEmail(client.email)
+    client.twofa = !!client.twofa;
 
     return res.status(200).json(client)
   } catch (e) {
