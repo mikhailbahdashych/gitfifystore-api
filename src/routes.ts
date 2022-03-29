@@ -5,7 +5,6 @@ const emailController = require('./controllers/emailController')
 const reflinkController = require('./controllers/reflinkController')
 const walletController = require('./controllers/walletController')
 
-// @TODO validator(['email', 'phone']) Something with validators
 import validator from "./middlewares/validator";
 
 // Basic functions
