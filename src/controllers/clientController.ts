@@ -139,7 +139,8 @@ export const set2fa = async (req: Request, res: Response) => {
     const result2Fa = twoFactorService.verifyToken(token, code);
     logger.info(`Setting 2FA for client with id: ${client.id}`)
 
-    if (!result2Fa || result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
     await clientService.set2fa(token, client.id)
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
@@ -216,15 +217,21 @@ export const clientByToken = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: Request, res: Response) => {
   try {
-    const { currentPassword, newPassword, newPasswordRepeat, token } = req.body
+    const { currentPassword, newPassword, newPasswordRepeat, token, twofa } = req.body
 
     if (
-      (!currentPassword || !newPassword || !newPasswordRepeat || !token) ||
+      (!currentPassword || !newPassword || !newPasswordRepeat || !token || !twofa) ||
       (newPassword !== newPasswordRepeat)
     ) return res.status(400).json({ status: -1 })
 
     const client = await getClientByJwtToken(token)
     if (!client) return res.status(403).json({ status: -1 })
+
+    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
+
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
 
@@ -239,15 +246,20 @@ export const changePassword = async (req: Request, res: Response) => {
 
 export const changeEmail = async (req: Request, res: Response) => {
   try {
-    const { currentEmail, newEmail, newEmailRepeat, token } = req.body
+    const { currentEmail, newEmail, newEmailRepeat, token, twofa } = req.body
 
     if (
-      (!currentEmail || !newEmail || !newEmailRepeat || !token) ||
+      (!currentEmail || !newEmail || !newEmailRepeat || !token || !twofa ) ||
       (newEmail !== newEmailRepeat)
     ) return CommonResponse.common.badRequest({ res })
 
     const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
+
+    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
+
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
     const checkIfEmailUsed = await clientService.getClientByEmailOrId({ email: newEmail})
 
