@@ -108,7 +108,6 @@ export const login = async (req: Request, res: Response) => {
       if (!twofa) return res.status(200).json({ twofa: true })
 
       const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
-
       if (!result2Fa) return CommonResponse.common.accessForbidden({ res }, -4)
       if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res }, -4)
     }
@@ -130,20 +129,20 @@ export const login = async (req: Request, res: Response) => {
 
 export const set2fa = async (req: Request, res: Response) => {
   try {
-    const { jwt, code, token } = req.body
+    const { token, twofa, tokenTwofa } = req.body
 
-    if (!jwt || !code || !token) return CommonResponse.common.badRequest({ res })
+    if (!token || !twofa || !tokenTwofa) return CommonResponse.common.badRequest({ res })
 
-    const client = await getClientByJwtToken(jwt)
+    const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
 
-    const result2Fa = twoFactorService.verifyToken(token, code);
+    const result2Fa = twoFactorService.verifyToken(tokenTwofa, twofa);
     logger.info(`Setting 2FA for client with id: ${client.id}`)
 
     if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
     if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
-    await clientService.set2fa(token, client.id)
+    await clientService.set2fa(tokenTwofa, client.id)
     logger.info(`2FA was successfully created for client with id: ${ client.id }`)
     return CommonResponse.common.success({ res })
 
@@ -155,26 +154,15 @@ export const set2fa = async (req: Request, res: Response) => {
 
 export const disable2fa = async (req: Request, res: Response) => {
   try {
-    const { code, jwt } = req.body
+    const { twofa, token } = req.body
 
-    if (!code) return CommonResponse.common.badRequest({ res })
+    if (!twofa) return CommonResponse.common.badRequest({ res })
 
-    const client = await getClientByJwtToken(jwt)
-    if (!client) return CommonResponse.common.accessForbidden({ res })
-
-    const { twofa } = await clientService.getClientByEmailOrId({ id: client.id })
-
-    if (!twofa) return CommonResponse.common.accessForbidden({ res })
-
-    const result2Fa = twoFactorService.verifyToken(twofa, code)
-
-    if (!result2Fa) return CommonResponse.common.accessForbidden({ res }, -4)
-    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res }, -4)
+    const client = await verifyTwoFa({ token, twofa }, res)
 
     await clientService.remove2fa(client.id)
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
     res.status(200).json({ status: -3 })
-
   } catch (e) {
     logger.error(`Error while disabling 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -225,13 +213,7 @@ export const changePassword = async (req: Request, res: Response) => {
       (newPassword !== newPasswordRepeat)
     ) return res.status(400).json({ status: -1 })
 
-    const client = await getClientByJwtToken(token)
-    if (!client) return res.status(403).json({ status: -1 })
-
-    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
-
-    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
-    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+    const client = await verifyTwoFa({ token, twofa }, res)
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
 
@@ -253,14 +235,7 @@ export const changeEmail = async (req: Request, res: Response) => {
       (newEmail !== newEmailRepeat)
     ) return CommonResponse.common.badRequest({ res })
 
-    await verifyTwoFa({ token, twofa }, res)
-    const client = await getClientByJwtToken(token)
-    if (!client) return CommonResponse.common.accessForbidden({ res })
-
-    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
-
-    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
-    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
+    const client = await verifyTwoFa({ token, twofa }, res)
 
     const checkIfEmailUsed = await clientService.getClientByEmailOrId({ email: newEmail})
 
