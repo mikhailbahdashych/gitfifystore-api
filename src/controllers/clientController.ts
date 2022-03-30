@@ -162,7 +162,7 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     await clientService.remove2fa(client.id)
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
-    res.status(200).json({ status: -3 })
+    return CommonResponse.common.success({ res }, -3 )
   } catch (e) {
     logger.error(`Error while disabling 2FA => ${e}`)
     return CommonResponse.common.somethingWentWrong({ res })
@@ -177,7 +177,7 @@ export const checkFor2fa = async (req: Request, res: Response) => {
 
     const { twofa } = await clientService.getClientByEmailOrId({ id: client.id })
 
-    if (!twofa) return res.status(200).json({ status: -2 })
+    if (!twofa) return CommonResponse.common.success({ res }, -2)
 
     return CommonResponse.common.success({ res })
 
@@ -211,11 +211,11 @@ export const changePassword = async (req: Request, res: Response) => {
     if (
       (!currentPassword || !newPassword || !newPasswordRepeat || !token || !twofa) ||
       (newPassword !== newPasswordRepeat)
-    ) return res.status(400).json({ status: -1 })
+    ) return CommonResponse.common.badRequest({ res })
 
     const client = await verifyTwoFa({ token, twofa }, res)
 
-    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
+    if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return CommonResponse.common.accessForbidden({ res })
 
     await clientService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
     return CommonResponse.common.success({ res })
