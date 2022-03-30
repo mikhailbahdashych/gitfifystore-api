@@ -232,7 +232,6 @@ export const changePassword = async (req: Request, res: Response) => {
     if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
     if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
-
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return res.status(403).json({ status: -1 })
 
     await clientService.changePassword(client.id, cryptoService.hashPassword(newPassword, process.env.CRYPTO_SALT.toString()))
@@ -276,9 +275,14 @@ export const changeEmail = async (req: Request, res: Response) => {
 
 export const closeAccount = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body
+    const { token, twofa } = req.body
     const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
+
+    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
+
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
     await clientService.closeAccount(client.id, client.email)
     return CommonResponse.common.success({ res })
@@ -290,9 +294,14 @@ export const closeAccount = async (req: Request, res: Response) => {
 
 export const freezeAccount = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body
+    const { token, twofa } = req.body
     const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
+
+    const result2Fa = twoFactorService.verifyToken(client.twofa, twofa)
+
+    if (!result2Fa) return CommonResponse.common.accessForbidden({ res })
+    if (result2Fa.delta !== 0) return CommonResponse.common.accessForbidden({ res })
 
     await clientService.freezeAccount(client.id)
     return CommonResponse.common.success({ res })
