@@ -158,7 +158,8 @@ export const disable2fa = async (req: Request, res: Response) => {
 
     if (!twofa) return CommonResponse.common.badRequest({ res })
 
-    const client = await verifyTwoFa({ token, twofa }, res)
+    const client = await verifyTwoFa({ token, twofa })
+    if (!client) return CommonResponse.common.unauthorized({ res })
 
     await clientService.remove2fa(client.id)
     logger.info(`2FA was successfully disabled for client with id: ${client.id}`)
@@ -213,7 +214,8 @@ export const changePassword = async (req: Request, res: Response) => {
       (newPassword !== newPasswordRepeat)
     ) return CommonResponse.common.badRequest({ res })
 
-    const client = await verifyTwoFa({ token, twofa }, res)
+    const client = await verifyTwoFa({ token, twofa })
+    if (!client) return CommonResponse.common.unauthorized({ res })
 
     if (client.password !== cryptoService.hashPassword(currentPassword, process.env.CRYPTO_SALT.toString())) return CommonResponse.common.accessForbidden({ res })
 
@@ -235,7 +237,8 @@ export const changeEmail = async (req: Request, res: Response) => {
       (newEmail !== newEmailRepeat)
     ) return CommonResponse.common.badRequest({ res })
 
-    const client = await verifyTwoFa({ token, twofa }, res)
+    const client = await verifyTwoFa({ token, twofa })
+    if (!client) return CommonResponse.common.unauthorized({ res })
 
     const checkIfEmailUsed = await clientService.getClientByEmailOrId({ email: newEmail})
 
@@ -254,7 +257,8 @@ export const freezeOrCloseAccount = async (req: Request, res: Response) => {
   try {
     const { token, twofa, type } = req.body
 
-    const client = await verifyTwoFa({ token, twofa }, res)
+    const client = await verifyTwoFa({ token, twofa })
+    if (!client) return CommonResponse.common.unauthorized({ res })
 
     if (type === 'closeaccount') await clientService.closeAccount(client.id, client.email)
     else await clientService.freezeAccount(client.id)
