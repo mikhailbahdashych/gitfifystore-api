@@ -30,7 +30,7 @@ router.get('/client-by-token', clientController.clientByToken)
 
 // Referral links
 router.post('/generate-referral-link', reflinkController.generateReferralLink)
-router.post('/get-referral-link', reflinkController.getReferralLink)
+router.get('/get-referral-link', reflinkController.getReferralLink)
 router.get('/registration-from-reflink/:reflink', reflinkController.findReferralLink)
 
 // Wallet

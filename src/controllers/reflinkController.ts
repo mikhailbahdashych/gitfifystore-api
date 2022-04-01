@@ -32,7 +32,7 @@ export const generateReferralLink = async (req: Request, res: Response) => {
 
 export const getReferralLink = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body
+    const token = req.headers.authorization.split(' ')[1]
     const user = await getClientByJwtToken(token)
     if (!user) return res.status(403).json({ status: -1 })
 
