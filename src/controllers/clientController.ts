@@ -189,7 +189,7 @@ export const checkFor2fa = async (req: Request, res: Response) => {
 
 export const clientByToken = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body
+    const token = req.headers.authorization.split(' ')[1]
     const client = await getClientByJwtToken(token)
     if (!client) return CommonResponse.common.accessForbidden({ res })
 

@@ -26,7 +26,7 @@ router.post('/change-email', clientController.changeEmail)
 router.post('/send-email', emailController.sendEmail)
 
 // Token
-router.post('/client-by-token', clientController.clientByToken)
+router.get('/client-by-token', clientController.clientByToken)
 
 // Referral links
 router.post('/generate-referral-link', reflinkController.generateReferralLink)
